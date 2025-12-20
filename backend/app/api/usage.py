@@ -3,6 +3,7 @@ Usage API endpoint.
 
 GET /usage - Returns all usage data for the current billing period.
 """
+
 import logging
 
 from fastapi import APIRouter, Request
@@ -13,10 +14,10 @@ from app.services.usage_service import get_usage_data
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(tags=["usage"])
+usage_router = APIRouter(tags=["usage"])
 
 
-@router.get(
+@usage_router.get(
     "/usage",
     response_model=UsageResponse,
     response_model_exclude_none=True,  # CRITICAL: Omit report_name when None
@@ -32,6 +33,7 @@ async def get_usage(request: Request) -> UsageResponse:
         Each item contains message_id, timestamp, credits_used,
         and optionally report_name if the message was a report.
     """
+
     # Get the shared HTTP client and cache from app state
     api_client = OrbitalAPIClient(
         request.app.state.http_client,

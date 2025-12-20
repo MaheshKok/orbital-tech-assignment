@@ -7,6 +7,7 @@ Implements:
 - In-memory caching for reports
 - Concurrent batch fetching
 """
+
 import asyncio
 import logging
 
@@ -33,7 +34,9 @@ class OrbitalAPIClient:
 
     async def get_messages(self) -> list[dict]:
         """Fetch all messages for the current billing period."""
-        response = await self._client.get(f"{ORBITAL_API_BASE_URL}/messages/current-period")
+        response = await self._client.get(
+            f"{ORBITAL_API_BASE_URL}/messages/current-period"
+        )
         response.raise_for_status()
         data = response.json()
         return data.get("messages", [])
@@ -77,4 +80,8 @@ class OrbitalAPIClient:
             await asyncio.gather(*tasks, return_exceptions=True)
 
         # Return all requested reports from cache
-        return {rid: self._report_cache[rid] for rid in unique_ids if rid in self._report_cache}
+        return {
+            rid: self._report_cache[rid]
+            for rid in unique_ids
+            if rid in self._report_cache
+        }

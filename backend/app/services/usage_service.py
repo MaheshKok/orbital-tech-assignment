@@ -1,6 +1,7 @@
 """
 Usage service for aggregating and processing usage data.
 """
+
 import logging
 
 from app.clients.orbital_api import OrbitalAPIClient
@@ -20,6 +21,7 @@ async def get_usage_data(api_client: OrbitalAPIClient) -> list[UsageItem]:
     4. Calculate credits for each message
     5. Return formatted usage items
     """
+
     # Fetch all messages
     messages = await api_client.get_messages()
     logger.info(f"Fetched {len(messages)} messages")

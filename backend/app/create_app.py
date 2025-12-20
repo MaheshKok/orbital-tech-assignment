@@ -3,6 +3,7 @@ FastAPI application factory.
 
 Creates and configures the FastAPI application instance.
 """
+
 import logging
 from contextlib import asynccontextmanager
 
@@ -10,7 +11,7 @@ import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import usage_router
+from app.api import health_router, usage_router
 from app.core.config import get_config
 
 logging.basicConfig(
@@ -21,6 +22,7 @@ logging.basicConfig(
 def register_routers(app: FastAPI):
     """Register all API routers."""
     app.include_router(usage_router)
+    app.include_router(health_router)
 
 
 @asynccontextmanager
