@@ -19,13 +19,17 @@ export default defineConfig({
 	},
 	server: {
 		port: 5173,
+		host: true, // Listen on all addresses (needed for Docker)
+		watch: {
+			usePolling: true, // Enable polling for Docker file watching
+		},
 		proxy: {
 			"/usage": {
-				target: "http://localhost:8000",
+				target: process.env.BACKEND_URL || "http://localhost:8000",
 				changeOrigin: true,
 			},
 			"/health": {
-				target: "http://localhost:8000",
+				target: process.env.BACKEND_URL || "http://localhost:8000",
 				changeOrigin: true,
 			},
 		},

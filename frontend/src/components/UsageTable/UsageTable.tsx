@@ -97,51 +97,96 @@ export function UsageTable({ data }: UsageTableProps) {
 	}
 
 	return (
-		<Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+		<Box
+			bg="white"
+			rounded="xl"
+			shadow="sm"
+			borderWidth="1px"
+			borderColor="gray.200"
+			overflow="hidden"
+		>
 			<TableContainer>
-				<Table variant="simple">
-					<Thead bg="gray.50">
+				<Table variant="elegant">
+					<Thead>
 						<Tr>
-							<Th>Message ID</Th>
+							<Th w="100px">ID</Th>
 							<Th>Timestamp</Th>
-							{renderSortableHeader("report_name", "Report Name")}
-							{renderSortableHeader("credits_used", "Credits Used")}
+							{renderSortableHeader("report_name", "Report Type")}
+							{renderSortableHeader("credits_used", "Credits")}
 						</Tr>
 					</Thead>
-					<Tbody bg="white">
+					<Tbody>
 						{sortedData.map((item) => (
-							<Tr key={item.message_id} _hover={{ bg: "gray.50" }}>
-								<Td fontWeight="medium">{item.message_id}</Td>
-								<Td color="gray.600">{formatTimestamp(item.timestamp)}</Td>
+							<Tr key={item.message_id}>
+								<Td>
+									<Text
+										fontFamily="mono"
+										fontSize="xs"
+										color="gray.500"
+										bg="gray.100"
+										px={2}
+										py={1}
+										rounded="md"
+										display="inline-block"
+									>
+										#{item.message_id}
+									</Text>
+								</Td>
+								<Td>
+									<Text color="gray.900" fontWeight="medium">
+										{formatTimestamp(item.timestamp)}
+									</Text>
+								</Td>
 								<Td>
 									{item.report_name ? (
-										<Badge colorScheme="blue" borderRadius="full" px={2}>
+										<Badge
+											colorScheme="brand"
+											variant="subtle"
+											px={2}
+											py={1}
+											rounded="md"
+											letterSpacing="wide"
+											textTransform="capitalize"
+										>
 											{item.report_name}
 										</Badge>
 									) : (
-										<Text color="gray.400">—</Text>
+										<Text color="gray.400" fontSize="sm">
+											N/A
+										</Text>
 									)}
 								</Td>
-								<Td fontWeight="semibold">{item.credits_used.toFixed(2)}</Td>
+								<Td>
+									<Flex align="center" gap={2}>
+										<Text
+											fontWeight="bold"
+											color={item.credits_used > 1 ? "brand.600" : "gray.700"}
+										>
+											{item.credits_used.toFixed(2)}
+										</Text>
+										<Text fontSize="xs" color="gray.500">
+											credits
+										</Text>
+									</Flex>
+								</Td>
 							</Tr>
 						))}
 					</Tbody>
 				</Table>
 			</TableContainer>
 			<Box
-				bg="gray.50"
+				bg="gray.50/50"
 				px={6}
-				py={3}
+				py={4}
 				borderTopWidth="1px"
-				borderColor="gray.200"
+				borderColor="gray.100"
 			>
-				<Text fontSize="sm" color="gray.600">
-					Showing{" "}
-					<Text as="span" fontWeight="medium">
-						{sortedData.length}
-					</Text>{" "}
-					messages
-				</Text>
+				<Flex justify="space-between" align="center">
+					<Text fontSize="xs" color="gray.500" fontWeight="medium">
+						Showing {sortedData.length} records
+					</Text>
+					{/* Placeholder for pagination if needed later */}
+				</Flex>
 			</Box>
 		</Box>
 	);

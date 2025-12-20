@@ -3,24 +3,13 @@
 
 services:
   # ============================================
-  # PostgreSQL Database Service (Development)
-  # ============================================
-  db:
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: orbital_usage_dev
-
-  # ============================================
   # FastAPI Backend Service (Development)
   # ============================================
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      target: builder  # Use builder stage for development
+      target: builder # Use builder stage for development
     environment:
       APP_ENV: development
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/orbital_usage_dev
@@ -31,7 +20,50 @@ services:
       - ./backend:/app
       # Exclude virtual environment
       - /app/.venv
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command:
+      ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     # Disable health check during development for faster startup
     healthcheck:
       disable: true
+
+  # ============================================
+  # Vite Frontend Service (Development)
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: orbital_frontend_dev
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      # Mount source code for hot reload
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+      - ./frontend/index.html:/app/index.html:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+      - ./frontend/tsconfig.json:/app/tsconfig.json:ro
+      - ./frontend/tsconfig.app.json:/app/tsconfig.app.json:ro
+      - ./frontend/tsconfig.node.json:/app/tsconfig.node.json:ro
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js:ro
+      - ./frontend/postcss.config.js:/app/postcss.config.js:ro
+    # Remove health check for dev (not using nginx)
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5173/",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - backend

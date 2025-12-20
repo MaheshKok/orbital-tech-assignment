@@ -12,7 +12,7 @@ import {
 	Tooltip,
 	ResponsiveContainer,
 } from "recharts";
-import { Box, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Text, Flex } from "@chakra-ui/react";
 import type { ChartDataPoint } from "../../types/usage";
 
 interface UsageChartProps {
@@ -28,29 +28,44 @@ interface CustomTooltipProps {
  * Custom tooltip for the chart.
  */
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
-	const bg = useColorModeValue("white", "gray.800");
-	const borderColor = useColorModeValue("gray.200", "gray.700");
+	const bg = "white";
+	const borderColor = "gray.200";
 
 	if (active && payload && payload.length) {
 		const data = payload[0].payload;
 		return (
 			<Box
 				bg={bg}
-				borderRadius="lg"
-				boxShadow="lg"
+				borderRadius="xl"
+				boxShadow="xl"
 				borderWidth="1px"
 				borderColor={borderColor}
-				p={3}
+				p={4}
+				minW="180px"
 			>
-				<Text fontSize="sm" fontWeight="medium" color="gray.500">
+				<Text
+					fontSize="xs"
+					fontWeight="semibold"
+					color="gray.400"
+					mb={1}
+					textTransform="uppercase"
+					letterSpacing="wide"
+				>
 					{data.fullDate}
 				</Text>
-				<Text fontSize="sm" color="gray.600">
-					Credits:{" "}
-					<Text as="span" fontWeight="bold" color="blue.500">
+				<Flex align="baseline" gap={1}>
+					<Text
+						fontSize="2xl"
+						fontWeight="bold"
+						color="gray.900"
+						lineHeight="1"
+					>
 						{data.credits.toFixed(2)}
 					</Text>
-				</Text>
+					<Text fontSize="xs" color="gray.500" fontWeight="medium">
+						credits
+					</Text>
+				</Flex>
 			</Box>
 		);
 	}
@@ -66,6 +81,11 @@ export function UsageChart({ data }: UsageChartProps) {
 				alignItems="center"
 				justifyContent="center"
 				color="gray.500"
+				bg="gray.50"
+				rounded="xl"
+				borderWidth="1px"
+				borderColor="gray.200"
+				borderStyle="dashed"
 			>
 				No usage data available
 			</Box>
@@ -73,47 +93,47 @@ export function UsageChart({ data }: UsageChartProps) {
 	}
 
 	return (
-		<Box h="320px" w="full">
+		<Box h="100%" w="full">
 			<ResponsiveContainer width="100%" height="100%">
 				<BarChart
 					data={data}
-					margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+					margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+					barSize={40}
 				>
-					<CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+					<defs>
+						<linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+							<stop offset="0%" stopColor="#6366F1" stopOpacity={1} />
+							<stop offset="100%" stopColor="#818CF8" stopOpacity={0.8} />
+						</linearGradient>
+					</defs>
+					<CartesianGrid
+						strokeDasharray="3 3"
+						vertical={false}
+						stroke="#E2E8F0"
+					/>
 					<XAxis
 						dataKey="date"
-						tick={{ fill: "#6b7280", fontSize: 12 }}
-						tickLine={{ stroke: "#d1d5db" }}
-						axisLine={{ stroke: "#d1d5db" }}
-						label={{
-							value: "Date (DD-MM)",
-							position: "insideBottom",
-							offset: -10,
-							fill: "#6b7280",
-							fontSize: 12,
-						}}
+						tick={{ fill: "#64748B", fontSize: 11, fontWeight: 500 }}
+						tickLine={false}
+						axisLine={{ stroke: "#E2E8F0" }}
+						dy={10}
 					/>
 					<YAxis
-						tick={{ fill: "#6b7280", fontSize: 12 }}
-						tickLine={{ stroke: "#d1d5db" }}
-						axisLine={{ stroke: "#d1d5db" }}
-						label={{
-							value: "Credits Used",
-							angle: -90,
-							position: "insideLeft",
-							fill: "#6b7280",
-							fontSize: 12,
-						}}
+						tick={{ fill: "#64748B", fontSize: 11, fontWeight: 500 }}
+						tickLine={false}
+						axisLine={false}
+						tickFormatter={(value) => `${value}`}
+						dx={-10}
 					/>
 					<Tooltip
 						content={<CustomTooltip />}
-						cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
+						cursor={{ fill: "#F1F5F9", opacity: 0.6 }}
 					/>
 					<Bar
 						dataKey="credits"
-						fill="#3b82f6"
-						radius={[4, 4, 0, 0]}
-						maxBarSize={60}
+						fill="url(#barGradient)"
+						radius={[6, 6, 0, 0]}
+						animationDuration={1500}
 					/>
 				</BarChart>
 			</ResponsiveContainer>
