@@ -16,6 +16,11 @@ dependencies = [
     "tomli==2.0.1",
     "python-dotenv==1.0.0",
     "logzero==1.7.0",
+    "sqlalchemy>=2.0.17",
+    "asyncpg>=0.27.0",
+    "alembic>=1.11.1",
+    "psycopg2-binary>=2.9.6",
+    "greenlet>=2.0.0",
 ]
 
 [project.optional-dependencies]

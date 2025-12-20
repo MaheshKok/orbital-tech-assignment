@@ -1,5 +1,12 @@
 ENVIRONMENT = "development"
 
+[db]
+host = "localhost"
+port = "5432"
+database = "orbital_usage_dev"
+username = "postgres"
+password = "postgres"
+
 [api]
 title = "Orbital Witness Usage API"
 description = "FastAPI-based usage tracking and credit calculation"

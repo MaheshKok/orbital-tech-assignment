@@ -7,6 +7,7 @@ Implements the credit calculation rules:
 - Minimum 1.00 credit for text messages (not for reports)
 - Round to 2 decimal places
 """
+
 from decimal import ROUND_HALF_UP, Decimal
 
 from app.utils.constants import BASE_MODEL_RATE, CHARACTERS_PER_TOKEN, MINIMUM_CREDITS
