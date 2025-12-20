@@ -1,2 +1,2 @@
-export { UsageTable } from './UsageTable';
-export { SortIndicator } from './SortIndicator';
+export { UsageTable } from "./UsageTable";
+export { SortIndicator } from "./SortIndicator";

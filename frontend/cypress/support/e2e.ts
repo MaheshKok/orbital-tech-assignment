@@ -4,16 +4,17 @@
  */
 
 // Import custom commands
-import './commands';
+import "./commands";
 
 // Prevent TypeScript errors
 declare global {
-  namespace Cypress {
-    interface Chainable {
-      /**
-       * Intercepts the usage API and returns mock data.
-       */
-      mockUsageApi(): Chainable<void>;
-    }
-  }
+	// eslint-disable-next-line @typescript-eslint/no-namespace
+	namespace Cypress {
+		interface Chainable {
+			/**
+			 * Intercepts the usage API and returns mock data.
+			 */
+			mockUsageApi(): Chainable<void>;
+		}
+	}
 }
