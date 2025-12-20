@@ -169,7 +169,7 @@ Result: 1.00 credits (minimum applied)
 
 **Sorting Behavior:**
 - Click 1: Ascending
-- Click 2: Descending  
+- Click 2: Descending
 - Click 3: Original order (reset)
 - Multiple columns can be sorted simultaneously
 
