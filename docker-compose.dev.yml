@@ -1,0 +1,37 @@
+# Orbital Usage API - Docker Compose Development Override
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+
+services:
+  # ============================================
+  # PostgreSQL Database Service (Development)
+  # ============================================
+  db:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orbital_usage_dev
+
+  # ============================================
+  # FastAPI Backend Service (Development)
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: builder  # Use builder stage for development
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/orbital_usage_dev
+      DATABASE_NAME: orbital_usage_dev
+      LOG_LEVEL: DEBUG
+    volumes:
+      # Mount source code for hot-reload
+      - ./backend:/app
+      # Exclude virtual environment
+      - /app/.venv
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    # Disable health check during development for faster startup
+    healthcheck:
+      disable: true

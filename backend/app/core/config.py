@@ -72,9 +72,25 @@ class Config:
         if port := os.getenv("SERVER_PORT"):
             self.config.setdefault("server", {})["port"] = int(port)
 
-        # Database configuration overrides
+        # Database configuration overrides (full URL takes precedence)
         if db_url := os.getenv("DATABASE_URL"):
             self.config.setdefault("database", {})["url"] = db_url
+
+        # Individual database component overrides (for Docker flexibility)
+        if db_host := os.getenv("DATABASE_HOST"):
+            self.config.setdefault("db", {})["host"] = db_host
+
+        if db_port := os.getenv("DATABASE_PORT"):
+            self.config.setdefault("db", {})["port"] = db_port
+
+        if db_name := os.getenv("DATABASE_NAME"):
+            self.config.setdefault("db", {})["database"] = db_name
+
+        if db_user := os.getenv("DATABASE_USER"):
+            self.config.setdefault("db", {})["username"] = db_user
+
+        if db_password := os.getenv("DATABASE_PASSWORD"):
+            self.config.setdefault("db", {})["password"] = db_password
 
         # Logging configuration overrides
         if log_level := os.getenv("LOG_LEVEL"):

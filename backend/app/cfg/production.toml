@@ -1,9 +1,11 @@
 ENVIRONMENT = "production"
 
 [db]
-host = "localhost"
+# These values can be overridden by environment variables:
+# DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD
+host = "db"  # Docker service name (use 'localhost' for non-Docker)
 port = "5432"
-database = "orbital_usage_prod"
+database = "orbital_usage"
 username = "postgres"
 password = "postgres"
 
