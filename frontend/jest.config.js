@@ -11,10 +11,11 @@ export default {
 			"ts-jest",
 			{
 				useESM: true,
-				tsconfig: "tsconfig.json",
+				tsconfig: "tsconfig.test.json",
 			},
 		],
 	},
+	transformIgnorePatterns: ["/node_modules/(?!(@testing-library/jest-dom)/)"],
 	extensionsToTreatAsEsm: [".ts", ".tsx"],
 	moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
 	testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[tj]s?(x)"],

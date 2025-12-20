@@ -2,13 +2,18 @@
  * Unit tests for LoadingSpinner component.
  */
 
-import { render, screen } from "../../../test/testUtils";
+import { render } from "../../../test/testUtils";
+import { screen } from "@testing-library/react";
+import { describe, it, expect } from "@jest/globals";
+import "@testing-library/jest-dom/jest-globals";
 import { LoadingSpinner } from "../LoadingSpinner";
 
 describe("LoadingSpinner", () => {
 	it("should render with default message", () => {
 		render(<LoadingSpinner />);
-		expect(screen.getByText("Loading...")).toBeInTheDocument();
+		// Use getAllByText since Chakra Spinner has a loading label too
+		const loadingElements = screen.getAllByText("Loading...");
+		expect(loadingElements.length).toBeGreaterThan(0);
 	});
 
 	it("should render with custom message", () => {

@@ -4,6 +4,19 @@
  */
 
 import { useMemo, useEffect, useState } from "react";
+import {
+	Table,
+	Thead,
+	Tbody,
+	Tr,
+	Th,
+	Td,
+	TableContainer,
+	Box,
+	Text,
+	Badge,
+	Flex,
+} from "@chakra-ui/react";
 import type { UsageItem, SortableColumn } from "../../types/usage";
 import { formatTimestamp } from "../../utils/dateFormatters";
 import { sortUsageData } from "../../utils/sortUtils";
@@ -54,10 +67,11 @@ export function UsageTable({ data }: UsageTableProps) {
 		const priority = getSortPriority(column);
 
 		return (
-			<th
-				className="px-6 py-4 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+			<Th
+				cursor="pointer"
+				_hover={{ bg: "gray.100" }}
 				onClick={() => handleHeaderClick(column)}
-				role="columnheader"
+				userSelect="none"
 				aria-sort={
 					direction === "asc"
 						? "ascending"
@@ -66,80 +80,69 @@ export function UsageTable({ data }: UsageTableProps) {
 						  : "none"
 				}
 			>
-				<div className="flex items-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+				<Flex align="center">
 					{label}
 					<SortIndicator direction={direction} priority={priority} />
-				</div>
-			</th>
+				</Flex>
+			</Th>
 		);
 	};
 
 	if (data.length === 0) {
 		return (
-			<div className="text-center py-12 text-gray-500">
+			<Box textAlign="center" py={12} color="gray.500">
 				No usage data available
-			</div>
+			</Box>
 		);
 	}
 
 	return (
-		<div className="overflow-hidden rounded-lg border border-gray-200">
-			<div className="overflow-x-auto">
-				<table className="min-w-full divide-y divide-gray-200" role="grid">
-					<thead className="bg-gray-50">
-						<tr>
-							<th
-								className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-								role="columnheader"
-							>
-								Message ID
-							</th>
-							<th
-								className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
-								role="columnheader"
-							>
-								Timestamp
-							</th>
+		<Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+			<TableContainer>
+				<Table variant="simple">
+					<Thead bg="gray.50">
+						<Tr>
+							<Th>Message ID</Th>
+							<Th>Timestamp</Th>
 							{renderSortableHeader("report_name", "Report Name")}
 							{renderSortableHeader("credits_used", "Credits Used")}
-						</tr>
-					</thead>
-					<tbody className="bg-white divide-y divide-gray-200">
+						</Tr>
+					</Thead>
+					<Tbody bg="white">
 						{sortedData.map((item) => (
-							<tr
-								key={item.message_id}
-								className="hover:bg-gray-50 transition-colors"
-								role="row"
-							>
-								<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-									{item.message_id}
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-									{formatTimestamp(item.timestamp)}
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+							<Tr key={item.message_id} _hover={{ bg: "gray.50" }}>
+								<Td fontWeight="medium">{item.message_id}</Td>
+								<Td color="gray.600">{formatTimestamp(item.timestamp)}</Td>
+								<Td>
 									{item.report_name ? (
-										<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+										<Badge colorScheme="blue" borderRadius="full" px={2}>
 											{item.report_name}
-										</span>
+										</Badge>
 									) : (
-										<span className="text-gray-400">—</span>
+										<Text color="gray.400">—</Text>
 									)}
-								</td>
-								<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-									{item.credits_used.toFixed(2)}
-								</td>
-							</tr>
+								</Td>
+								<Td fontWeight="semibold">{item.credits_used.toFixed(2)}</Td>
+							</Tr>
 						))}
-					</tbody>
-				</table>
-			</div>
-			<div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-				<p className="text-sm text-gray-600">
-					Showing <span className="font-medium">{sortedData.length}</span>{" "}
+					</Tbody>
+				</Table>
+			</TableContainer>
+			<Box
+				bg="gray.50"
+				px={6}
+				py={3}
+				borderTopWidth="1px"
+				borderColor="gray.200"
+			>
+				<Text fontSize="sm" color="gray.600">
+					Showing{" "}
+					<Text as="span" fontWeight="medium">
+						{sortedData.length}
+					</Text>{" "}
 					messages
-				</p>
-			</div>
-		</div>
+				</Text>
+			</Box>
+		</Box>
 	);
 }

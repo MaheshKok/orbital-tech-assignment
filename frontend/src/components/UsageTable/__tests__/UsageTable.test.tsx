@@ -2,8 +2,11 @@
  * Unit tests for UsageTable component.
  */
 
-import { render, screen, fireEvent } from "../../../test/testUtils";
+import { render } from "../../../test/testUtils";
+import { screen, fireEvent } from "@testing-library/react";
 import { UsageTable } from "../UsageTable";
+import { describe, it, expect } from "@jest/globals";
+import "@testing-library/jest-dom/jest-globals";
 import type { UsageItem } from "../../../types/usage";
 
 const mockData: UsageItem[] = [

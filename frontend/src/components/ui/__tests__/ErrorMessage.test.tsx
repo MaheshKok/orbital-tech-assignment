@@ -2,7 +2,11 @@
  * Unit tests for ErrorMessage component.
  */
 
-import { render, screen, fireEvent } from "../../../test/testUtils";
+import { jest } from "@jest/globals";
+import { render } from "../../../test/testUtils";
+import { describe, it, expect } from "@jest/globals";
+import "@testing-library/jest-dom/jest-globals";
+import { screen, fireEvent } from "@testing-library/react";
 import { ErrorMessage } from "../ErrorMessage";
 
 describe("ErrorMessage", () => {

@@ -3,6 +3,16 @@
  * Displays error states with retry option.
  */
 
+import {
+	Alert,
+	AlertIcon,
+	AlertTitle,
+	AlertDescription,
+	Button,
+	Box,
+} from "@chakra-ui/react";
+import { RepeatIcon } from "@chakra-ui/icons";
+
 interface ErrorMessageProps {
 	title?: string;
 	message: string;
@@ -15,53 +25,40 @@ export function ErrorMessage({
 	onRetry,
 }: ErrorMessageProps) {
 	return (
-		<div
-			className="flex flex-col items-center justify-center py-12 px-4"
-			role="alert"
-			aria-live="assertive"
-		>
-			<div className="rounded-full bg-red-100 p-3 mb-4">
-				<svg
-					className="h-8 w-8 text-red-600"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-					aria-hidden="true"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-					/>
-				</svg>
-			</div>
-			<h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-			<p className="text-sm text-gray-600 text-center max-w-md mb-4">
-				{message}
-			</p>
-			{onRetry && (
-				<button
-					onClick={onRetry}
-					className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-				>
-					<svg
-						className="h-4 w-4 mr-2"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke="currentColor"
-						aria-hidden="true"
+		<Box py={12} px={4} maxW="md" mx="auto">
+			<Alert
+				status="error"
+				variant="subtle"
+				flexDirection="column"
+				alignItems="center"
+				justifyContent="center"
+				textAlign="center"
+				height="auto"
+				py={6}
+				rounded="lg"
+				bg="red.50"
+			>
+				<AlertIcon boxSize="40px" mr={0} />
+				<AlertTitle mt={4} mb={1} fontSize="lg">
+					{title}
+				</AlertTitle>
+				<AlertDescription maxWidth="sm" color="gray.600">
+					{message}
+				</AlertDescription>
+
+				{onRetry && (
+					<Button
+						mt={6}
+						colorScheme="red"
+						size="sm"
+						variant="outline"
+						leftIcon={<RepeatIcon />}
+						onClick={onRetry}
 					>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-						/>
-					</svg>
-					Try Again
-				</button>
-			)}
-		</div>
+						Try Again
+					</Button>
+				)}
+			</Alert>
+		</Box>
 	);
 }

@@ -6,8 +6,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ChakraProvider } from "@chakra-ui/react";
 import App from "./App";
-import "./index.css";
+import theme from "./theme";
 
 // Create a QueryClient instance
 const queryClient = new QueryClient({
@@ -21,8 +22,10 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
 	<StrictMode>
-		<QueryClientProvider client={queryClient}>
-			<App />
-		</QueryClientProvider>
+		<ChakraProvider theme={theme}>
+			<QueryClientProvider client={queryClient}>
+				<App />
+			</QueryClientProvider>
+		</ChakraProvider>
 	</StrictMode>
 );

@@ -3,6 +3,8 @@
  * Displays visual indicator for column sort state.
  */
 
+import { Icon, Badge, HStack } from "@chakra-ui/react";
+import { ChevronUpIcon, ChevronDownIcon, UpDownIcon } from "@chakra-ui/icons";
 import type { SortDirection } from "../../types/usage";
 
 interface SortIndicatorProps {
@@ -12,57 +14,34 @@ interface SortIndicatorProps {
 
 export function SortIndicator({ direction, priority }: SortIndicatorProps) {
 	return (
-		<span className="ml-2 inline-flex items-center">
+		<HStack
+			spacing={1}
+			ml={2}
+			as="span"
+			display="inline-flex"
+			alignItems="center"
+		>
 			{direction === "asc" && (
-				<svg
-					className="h-4 w-4 text-blue-600"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M5 15l7-7 7 7"
-					/>
-				</svg>
+				<Icon as={ChevronUpIcon} w={4} h={4} color="blue.600" />
 			)}
 			{direction === "desc" && (
-				<svg
-					className="h-4 w-4 text-blue-600"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M19 9l-7 7-7-7"
-					/>
-				</svg>
+				<Icon as={ChevronDownIcon} w={4} h={4} color="blue.600" />
 			)}
 			{direction === null && (
-				<svg
-					className="h-4 w-4 text-gray-400"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-					/>
-				</svg>
+				<Icon as={UpDownIcon} w={3} h={3} color="gray.400" />
 			)}
 			{priority !== null && priority !== undefined && (
-				<span className="ml-1 text-xs bg-blue-100 text-blue-700 rounded-full px-1.5 py-0.5 font-medium">
+				<Badge
+					ml={1}
+					colorScheme="blue"
+					variant="subtle"
+					fontSize="xs"
+					borderRadius="full"
+					px={1.5}
+				>
 					{priority}
-				</span>
+				</Badge>
 			)}
-		</span>
+		</HStack>
 	);
 }

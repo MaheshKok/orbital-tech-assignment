@@ -3,7 +3,13 @@
  * Configures testing utilities and global mocks.
  */
 
+import { jest } from "@jest/globals";
+import { TextEncoder, TextDecoder } from "util";
 import "@testing-library/jest-dom";
+
+// Polyfill for TextEncoder/TextDecoder (required by react-router)
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
 // Mock matchMedia for responsive components
 Object.defineProperty(window, "matchMedia", {
@@ -30,4 +36,4 @@ class ResizeObserverMock {
 window.ResizeObserver = ResizeObserverMock;
 
 // Mock scrollTo
-window.scrollTo = jest.fn();
+window.scrollTo = jest.fn() as unknown as typeof window.scrollTo;

@@ -12,6 +12,7 @@ import {
 	Tooltip,
 	ResponsiveContainer,
 } from "recharts";
+import { Box, Text, useColorModeValue } from "@chakra-ui/react";
 import type { ChartDataPoint } from "../../types/usage";
 
 interface UsageChartProps {
@@ -27,18 +28,30 @@ interface CustomTooltipProps {
  * Custom tooltip for the chart.
  */
 function CustomTooltip({ active, payload }: CustomTooltipProps) {
+	const bg = useColorModeValue("white", "gray.800");
+	const borderColor = useColorModeValue("gray.200", "gray.700");
+
 	if (active && payload && payload.length) {
 		const data = payload[0].payload;
 		return (
-			<div className="bg-white rounded-lg shadow-lg border border-gray-200 p-3">
-				<p className="text-sm font-medium text-gray-900">{data.fullDate}</p>
-				<p className="text-sm text-gray-600">
+			<Box
+				bg={bg}
+				borderRadius="lg"
+				boxShadow="lg"
+				borderWidth="1px"
+				borderColor={borderColor}
+				p={3}
+			>
+				<Text fontSize="sm" fontWeight="medium" color="gray.500">
+					{data.fullDate}
+				</Text>
+				<Text fontSize="sm" color="gray.600">
 					Credits:{" "}
-					<span className="font-semibold text-blue-600">
+					<Text as="span" fontWeight="bold" color="blue.500">
 						{data.credits.toFixed(2)}
-					</span>
-				</p>
-			</div>
+					</Text>
+				</Text>
+			</Box>
 		);
 	}
 	return null;
@@ -47,14 +60,20 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function UsageChart({ data }: UsageChartProps) {
 	if (data.length === 0) {
 		return (
-			<div className="h-64 flex items-center justify-center text-gray-500">
+			<Box
+				h="256px"
+				display="flex"
+				alignItems="center"
+				justifyContent="center"
+				color="gray.500"
+			>
 				No usage data available
-			</div>
+			</Box>
 		);
 	}
 
 	return (
-		<div className="h-80 w-full">
+		<Box h="320px" w="full">
 			<ResponsiveContainer width="100%" height="100%">
 				<BarChart
 					data={data}
@@ -98,6 +117,6 @@ export function UsageChart({ data }: UsageChartProps) {
 					/>
 				</BarChart>
 			</ResponsiveContainer>
-		</div>
+		</Box>
 	);
 }
