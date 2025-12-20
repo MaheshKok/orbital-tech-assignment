@@ -1,5 +1,5 @@
-# Orbital Usage API - Docker Compose Configuration
-# Multi-container setup with FastAPI backend and PostgreSQL database
+# Orbital Usage Dashboard - Docker Compose Configuration
+# Multi-container setup with React frontend, FastAPI backend, and PostgreSQL database
 
 services:
   # ============================================
@@ -60,7 +60,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -70,6 +70,32 @@ services:
     # volumes:
     #   # Mount for development (optional, uncomment for live reload)
     #   - ./backend:/app:ro
+
+  # ============================================
+  # React Frontend Service
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Backend API URL for the frontend to use
+        VITE_API_URL: ""
+    container_name: orbital_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - orbital_network
 
 # ============================================
 # Networks
