@@ -1,0 +1,28 @@
+ENVIRONMENT = "production"
+
+[api]
+title = "Orbital Witness Usage API"
+description = "FastAPI-based usage tracking and credit calculation"
+version = "1.0.0"
+debug = false
+
+[external_api]
+base_url = "https://owpublic.blob.core.windows.net/tech-task"
+timeout = 30
+
+[logging]
+version = 1
+disable_existing_loggers = false
+
+[logging.formatters.default]
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+[logging.handlers.console]
+class = "logging.StreamHandler"
+level = "WARNING"
+formatter = "default"
+stream = "ext://sys.stdout"
+
+[logging.root]
+level = "WARNING"
+handlers = ["console"]

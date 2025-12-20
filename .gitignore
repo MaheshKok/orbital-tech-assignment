@@ -30,3 +30,10 @@ coordination/orchestration/*
 claude-flow
 # Removed Windows wrapper files per user request
 hive-mind-prompt-*.txt
+
+node_modules/
+venv/
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
