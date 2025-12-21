@@ -32,15 +32,14 @@ export function UsageTable({ data }: UsageTableProps) {
 	const { sortOrder, getDirection, getSortPriority, toggleSort } =
 		useUrlSortState();
 
-	// Memoize original indices for stable sorting - recreate when data IDs change
-	const originalIndices = useMemo(() => {
-		return new Map(data.map((item, idx) => [item.message_id, idx]));
-	}, [data]);
-
 	// Sort data based on current sort state
 	const sortedData = useMemo(() => {
+		if (sortOrder.length === 0) return data;
+		const originalIndices = new Map(
+			data.map((item, idx) => [item.message_id, idx])
+		);
 		return sortUsageData(data, sortOrder, originalIndices);
-	}, [data, sortOrder, originalIndices]);
+	}, [data, sortOrder]);
 
 	const handleHeaderClick = (column: SortableColumn) => {
 		toggleSort(column);

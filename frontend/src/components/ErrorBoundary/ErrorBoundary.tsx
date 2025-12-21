@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { WarningTwoIcon } from "@chakra-ui/icons";
 import { isDev, isProd } from "../../config/env";
+import { reportClientError } from "../../utils/telemetry";
 
 interface Props {
 	children: ReactNode;
@@ -45,10 +46,8 @@ class ErrorBoundary extends Component<Props, State> {
 	componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
 		this.setState({ errorInfo });
 
-		// Log error to monitoring service in production
 		if (isProd) {
-			// TODO: Send to error monitoring service (Sentry, etc.)
-			console.error("Uncaught error:", error, errorInfo);
+			reportClientError(error, errorInfo);
 		}
 	}
 

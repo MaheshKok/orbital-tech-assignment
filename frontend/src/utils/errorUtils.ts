@@ -7,6 +7,7 @@ import { AxiosError } from "axios";
 import { ZodError } from "zod";
 import { ERROR_MESSAGES } from "../constants";
 import { isDev } from "../config/env";
+import { logError } from "./logger";
 
 /**
  * Extracts a user-friendly message from various error types.
@@ -65,7 +66,7 @@ export function handleError(error: unknown, context?: string): string {
 
 	// Log full error details in development
 	if (isDev) {
-		console.error(`${prefix}Error:`, error);
+		logError(`${prefix}Error:`, error);
 	}
 
 	return getUserFriendlyErrorMessage(error);

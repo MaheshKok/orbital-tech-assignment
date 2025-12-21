@@ -9,6 +9,7 @@
 
 import axios from "axios";
 import { apiConfig, isDev } from "../config/env";
+import { logError } from "../utils/logger";
 
 export const apiClient = axios.create({
 	baseURL: apiConfig.baseUrl,
@@ -24,7 +25,7 @@ apiClient.interceptors.response.use(
 	(error) => {
 		// Only log in development - production should use observability
 		if (isDev) {
-			console.error("API Error:", error);
+			logError("API Error:", error);
 		}
 		return Promise.reject(error);
 	}
