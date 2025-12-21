@@ -11,8 +11,8 @@ describe("Dashboard Page", () => {
 
 	describe("Page Structure", () => {
 		it("should display the dashboard header", () => {
-			cy.contains("Orbital Copilot").should("be.visible");
-			cy.contains("Usage Dashboard").should("be.visible");
+			cy.get("header").contains("Orbital Copilot").should("be.visible");
+			cy.get("header").contains("Usage Dashboard").should("be.visible");
 		});
 
 		it("should display stats cards", () => {
@@ -229,6 +229,6 @@ describe("Error State", () => {
 		cy.contains("button", "Try Again").click();
 		cy.wait("@successUsage");
 
-		cy.contains("Orbital Copilot").should("be.visible");
+		cy.get("header").contains("Orbital Copilot").should("be.visible");
 	});
 });

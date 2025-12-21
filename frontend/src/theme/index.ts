@@ -1,4 +1,10 @@
+/**
+ * Chakra UI Theme Configuration.
+ * Centralized theme using design tokens.
+ */
+
 import { extendTheme, type ThemeConfig } from "@chakra-ui/react";
+import { colors, typography } from "./tokens";
 
 const config: ThemeConfig = {
 	initialColorMode: "light",
@@ -8,40 +14,12 @@ const config: ThemeConfig = {
 const theme = extendTheme({
 	config,
 	colors: {
-		brand: {
-			50: "#EEF2FF",
-			100: "#E0E7FF",
-			200: "#C7D2FE",
-			300: "#A5B4FC",
-			400: "#818CF8",
-			500: "#6366F1", // Primary Brand Color
-			600: "#4F46E5",
-			700: "#4338CA",
-			800: "#3730A3",
-			900: "#312E81",
-			950: "#1E1B4B",
-		},
-		accent: {
-			400: "#38BDF8", // Cyan for nice gradients
-			500: "#0EA5E9",
-		},
-		gray: {
-			50: "#F8FAFC", // Cool grays (Slate)
-			100: "#F1F5F9",
-			200: "#E2E8F0",
-			300: "#CBD5E1",
-			400: "#94A3B8",
-			500: "#64748B",
-			600: "#475569",
-			700: "#334155",
-			800: "#1E293B",
-			900: "#0F172A",
-		},
+		// Map tokens to Chakra color scheme
+		brand: colors.primary,
+		gray: colors.neutral,
+		red: colors.error,
 	},
-	fonts: {
-		heading: "'Inter', sans-serif",
-		body: "'Inter', sans-serif",
-	},
+	fonts: typography.fonts,
 	styles: {
 		global: {
 			body: {
@@ -73,20 +51,68 @@ const theme = extendTheme({
 					pt: 2,
 				},
 			},
+			variants: {
+				elevated: {
+					container: {
+						shadow: "sm",
+						_hover: {
+							shadow: "lg",
+						},
+					},
+				},
+				outline: {
+					container: {
+						shadow: "none",
+						borderWidth: "1px",
+					},
+				},
+			},
 		},
 		Button: {
+			baseStyle: {
+				fontWeight: "semibold",
+				rounded: "lg",
+			},
 			variants: {
-				primary: {
-					bgGradient: "linear(to-r, brand.600, brand.500)",
+				solid: {
+					bg: "brand.500",
 					color: "white",
 					_hover: {
-						bgGradient: "linear(to-r, brand.700, brand.600)",
+						bg: "brand.600",
 						shadow: "md",
 					},
 					_active: {
 						bg: "brand.700",
 					},
 				},
+				outline: {
+					borderColor: "gray.200",
+					color: "gray.700",
+					_hover: {
+						bg: "gray.100",
+						borderColor: "gray.300",
+					},
+				},
+				ghost: {
+					color: "gray.600",
+					_hover: {
+						bg: "gray.100",
+					},
+				},
+				primary: {
+					bg: "brand.500",
+					color: "white",
+					_hover: {
+						bg: "brand.600",
+						shadow: "md",
+					},
+					_active: {
+						bg: "brand.700",
+					},
+				},
+			},
+			defaultProps: {
+				colorScheme: "brand",
 			},
 		},
 		Badge: {
@@ -97,6 +123,37 @@ const theme = extendTheme({
 				fontWeight: "medium",
 				textTransform: "none",
 			},
+			variants: {
+				subtle: {
+					bg: "brand.50",
+					color: "brand.700",
+				},
+				solid: {
+					bg: "gray.700",
+					color: "white",
+				},
+			},
+		},
+		Heading: {
+			baseStyle: {
+				color: "gray.900",
+				fontWeight: "bold",
+			},
+		},
+		Text: {
+			baseStyle: {
+				color: "gray.700",
+			},
+		},
+		Stat: {
+			baseStyle: {
+				label: {
+					color: "gray.500",
+				},
+				number: {
+					color: "gray.900",
+				},
+			},
 		},
 		Table: {
 			variants: {
@@ -106,8 +163,7 @@ const theme = extendTheme({
 					},
 					thead: {
 						th: {
-							bg: "gray.50/80", // Glassy feel
-							backdropFilter: "blur(8px)",
+							bg: "gray.50",
 							color: "gray.500",
 							textTransform: "uppercase",
 							letterSpacing: "wider",
@@ -142,7 +198,25 @@ const theme = extendTheme({
 				},
 			},
 		},
+		Alert: {
+			variants: {
+				subtle: {
+					container: {
+						bg: "red.50",
+					},
+					icon: {
+						color: "red.500",
+					},
+				},
+			},
+		},
+		Spinner: {
+			baseStyle: {
+				color: "brand.500",
+			},
+		},
 	},
 });
 
 export default theme;
+export { colors, chartColors, componentTokens, typography } from "./tokens";

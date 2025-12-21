@@ -178,7 +178,7 @@ export function Dashboard() {
 											</StatNumber>
 										</Stat>
 									</Box>
-									<Flex p={3} bg="blue.50" rounded="2xl" color="brand.600">
+									<Flex p={3} bg="brand.50" rounded="2xl" color="brand.600">
 										<Icon as={FiCreditCard} w={6} h={6} />
 									</Flex>
 								</Flex>
@@ -206,7 +206,7 @@ export function Dashboard() {
 											Active interactions
 										</Text>
 									</Box>
-									<Flex p={3} bg="green.50" rounded="2xl" color="green.600">
+									<Flex p={3} bg="brand.100" rounded="2xl" color="brand.500">
 										<Icon as={FiMessageSquare} w={6} h={6} />
 									</Flex>
 								</Flex>
@@ -234,7 +234,7 @@ export function Dashboard() {
 											Document analysis
 										</Text>
 									</Box>
-									<Flex p={3} bg="purple.50" rounded="2xl" color="purple.600">
+									<Flex p={3} bg="brand.200" rounded="2xl" color="brand.700">
 										<Icon as={FiFileText} w={6} h={6} />
 									</Flex>
 								</Flex>

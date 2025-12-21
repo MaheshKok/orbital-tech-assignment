@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { Box, Text, Flex } from "@chakra-ui/react";
 import type { ChartDataPoint } from "../../types/usage";
+import { chartColors } from "../../theme";
 
 interface UsageChartProps {
 	data: ChartDataPoint[];
@@ -86,11 +87,15 @@ export function UsageChart({ data }: UsageChartProps) {
 				borderWidth="1px"
 				borderColor="gray.200"
 				borderStyle="dashed"
+				aria-label="No chart data available"
 			>
 				No usage data available
 			</Box>
 		);
 	}
+
+	// Chart colors from design tokens
+	const { bar, grid, axis, tick, cursor } = chartColors;
 
 	return (
 		<Box h="100%" w="full">
@@ -99,27 +104,33 @@ export function UsageChart({ data }: UsageChartProps) {
 					data={data}
 					margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
 					barSize={40}
+					role="img"
+					aria-label="Daily credit usage bar chart"
 				>
 					<defs>
 						<linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="0%" stopColor="#6366F1" stopOpacity={1} />
-							<stop offset="100%" stopColor="#818CF8" stopOpacity={0.8} />
+							<stop
+								offset="0%"
+								stopColor={bar.gradient.start}
+								stopOpacity={1}
+							/>
+							<stop
+								offset="100%"
+								stopColor={bar.gradient.end}
+								stopOpacity={0.8}
+							/>
 						</linearGradient>
 					</defs>
-					<CartesianGrid
-						strokeDasharray="3 3"
-						vertical={false}
-						stroke="#E2E8F0"
-					/>
+					<CartesianGrid strokeDasharray="3 3" vertical={false} stroke={grid} />
 					<XAxis
 						dataKey="date"
-						tick={{ fill: "#64748B", fontSize: 11, fontWeight: 500 }}
+						tick={{ fill: tick, fontSize: 11, fontWeight: 500 }}
 						tickLine={false}
-						axisLine={{ stroke: "#E2E8F0" }}
+						axisLine={{ stroke: axis }}
 						dy={10}
 					/>
 					<YAxis
-						tick={{ fill: "#64748B", fontSize: 11, fontWeight: 500 }}
+						tick={{ fill: tick, fontSize: 11, fontWeight: 500 }}
 						tickLine={false}
 						axisLine={false}
 						tickFormatter={(value) => `${value}`}
@@ -127,7 +138,7 @@ export function UsageChart({ data }: UsageChartProps) {
 					/>
 					<Tooltip
 						content={<CustomTooltip />}
-						cursor={{ fill: "#F1F5F9", opacity: 0.6 }}
+						cursor={{ fill: cursor, opacity: 0.6 }}
 					/>
 					<Bar
 						dataKey="credits"
