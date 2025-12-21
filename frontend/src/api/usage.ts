@@ -5,16 +5,19 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "./client";
+import { UsageResponseSchema } from "../schemas/usage";
+import { API_CONFIG, QUERY_KEYS } from "../constants";
 import type { UsageResponse } from "../types/usage";
-
-const USAGE_QUERY_KEY = ["usage"] as const;
 
 /**
  * Fetch usage data from the backend API.
+ * Validates response using Zod schema.
  */
 async function fetchUsageData(): Promise<UsageResponse> {
-	const response = await apiClient.get<UsageResponse>("/usage");
-	return response.data;
+	const response = await apiClient.get("/usage");
+	// Validate response data with Zod
+	const validated = UsageResponseSchema.parse(response.data);
+	return validated;
 }
 
 /**
@@ -23,11 +26,11 @@ async function fetchUsageData(): Promise<UsageResponse> {
  */
 export function useUsageData() {
 	return useQuery({
-		queryKey: USAGE_QUERY_KEY,
+		queryKey: QUERY_KEYS.USAGE,
 		queryFn: fetchUsageData,
-		staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
-		gcTime: 30 * 60 * 1000, // Cache for 30 minutes
-		retry: 3,
+		staleTime: API_CONFIG.STALE_TIME,
+		gcTime: API_CONFIG.CACHE_TIME,
+		retry: API_CONFIG.RETRY_COUNT,
 		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 	});
 }

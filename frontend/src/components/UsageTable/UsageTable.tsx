@@ -71,6 +71,14 @@ export function UsageTable({ data }: UsageTableProps) {
 				cursor="pointer"
 				_hover={{ bg: "gray.100" }}
 				onClick={() => handleHeaderClick(column)}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						handleHeaderClick(column);
+					}
+				}}
+				tabIndex={0}
+				role="columnheader button"
 				userSelect="none"
 				aria-sort={
 					direction === "asc"
@@ -79,6 +87,13 @@ export function UsageTable({ data }: UsageTableProps) {
 						  ? "descending"
 						  : "none"
 				}
+				aria-label={`Sort by ${label}, currently ${
+					direction === "asc"
+						? "ascending"
+						: direction === "desc"
+						  ? "descending"
+						  : "unsorted"
+				}`}
 			>
 				<Flex align="center">
 					{label}
@@ -106,11 +121,13 @@ export function UsageTable({ data }: UsageTableProps) {
 			overflow="hidden"
 		>
 			<TableContainer>
-				<Table variant="elegant">
+				<Table variant="elegant" aria-label="Usage activity log">
 					<Thead>
 						<Tr>
-							<Th w="100px">Message ID</Th>
-							<Th>Timestamp</Th>
+							<Th w="100px" scope="col">
+								Message ID
+							</Th>
+							<Th scope="col">Timestamp</Th>
 							{renderSortableHeader("report_name", "Report Name")}
 							{renderSortableHeader("credits_used", "Credits Used")}
 						</Tr>

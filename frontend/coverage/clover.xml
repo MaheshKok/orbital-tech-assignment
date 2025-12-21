@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1766340933730" clover="3.2.0">
+  <project timestamp="1766340933730" name="All files">
+    <metrics statements="151" coveredstatements="117" conditionals="109" coveredconditionals="81" methods="53" coveredmethods="41" elements="313" coveredelements="239" complexity="0" loc="151" ncloc="151" packages="8" files="13" classes="13"/>
+    <package name="src">
+      <metrics statements="3" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+      <file name="App.tsx" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/App.tsx">
+        <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="11" count="0" type="stmt"/>
+      </file>
+      <file name="theme.ts" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/theme.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.api">
+      <metrics statements="5" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <file name="usage.ts" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/api/usage.ts">
+        <metrics statements="5" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.components.Dashboard">
+      <metrics statements="14" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="4" coveredmethods="0"/>
+      <file name="Dashboard.tsx" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/components/Dashboard/Dashboard.tsx">
+        <metrics statements="14" coveredstatements="0" conditionals="12" coveredconditionals="0" methods="4" coveredmethods="0"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="49" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="61" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.components.UsageChart">
+      <metrics statements="10" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="3" coveredmethods="0"/>
+      <file name="UsageChart.tsx" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/components/UsageChart/UsageChart.tsx">
+        <metrics statements="10" coveredstatements="0" conditionals="7" coveredconditionals="0" methods="3" coveredmethods="0"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="76" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="125" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.components.UsageTable">
+      <metrics statements="26" coveredstatements="23" conditionals="23" coveredconditionals="21" methods="13" coveredmethods="12"/>
+      <file name="SortIndicator.tsx" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/components/UsageTable/SortIndicator.tsx">
+        <metrics statements="1" coveredstatements="1" conditionals="9" coveredconditionals="9" methods="1" coveredmethods="1"/>
+        <line num="16" count="29" type="stmt"/>
+      </file>
+      <file name="UsageTable.tsx" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/components/UsageTable/UsageTable.tsx">
+        <metrics statements="25" coveredstatements="22" conditionals="14" coveredconditionals="12" methods="12" coveredmethods="11"/>
+        <line num="32" count="13" type="stmt"/>
+        <line num="35" count="13" type="stmt"/>
+        <line num="36" count="27" type="stmt"/>
+        <line num="40" count="13" type="stmt"/>
+        <line num="42" count="10" type="stmt"/>
+        <line num="43" count="27" type="stmt"/>
+        <line num="45" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="27" type="stmt"/>
+        <line num="48" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="57" count="13" type="stmt"/>
+        <line num="58" count="13" type="stmt"/>
+        <line num="61" count="13" type="stmt"/>
+        <line num="62" count="3" type="stmt"/>
+        <line num="65" count="13" type="stmt"/>
+        <line num="66" count="24" type="stmt"/>
+        <line num="67" count="24" type="stmt"/>
+        <line num="69" count="24" type="stmt"/>
+        <line num="73" count="3" type="stmt"/>
+        <line num="91" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="99" count="12" type="stmt"/>
+        <line num="120" count="36" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.components.ui">
+      <metrics statements="2" coveredstatements="2" conditionals="7" coveredconditionals="7" methods="2" coveredmethods="2"/>
+      <file name="ErrorMessage.tsx" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/components/ui/ErrorMessage.tsx">
+        <metrics statements="1" coveredstatements="1" conditionals="3" coveredconditionals="3" methods="1" coveredmethods="1"/>
+        <line num="27" count="6" type="stmt"/>
+      </file>
+      <file name="LoadingSpinner.tsx" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/components/ui/LoadingSpinner.tsx">
+        <metrics statements="1" coveredstatements="1" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="17" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.hooks">
+      <metrics statements="34" coveredstatements="33" conditionals="22" coveredconditionals="20" methods="16" coveredmethods="16"/>
+      <file name="useUrlSortState.ts" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/hooks/useUrlSortState.ts">
+        <metrics statements="34" coveredstatements="33" conditionals="22" coveredconditionals="20" methods="16" coveredmethods="16"/>
+        <line num="14" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="21" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="13" type="stmt"/>
+        <line num="34" count="13" type="stmt"/>
+        <line num="35" count="13" type="stmt"/>
+        <line num="36" count="13" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="41" count="2" type="stmt"/>
+        <line num="42" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="51" count="13" type="stmt"/>
+        <line num="53" count="24" type="stmt"/>
+        <line num="54" count="24" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="13" type="stmt"/>
+        <line num="62" count="24" type="stmt"/>
+        <line num="63" count="24" type="cond" truecount="2" falsecount="0"/>
+        <line num="69" count="13" type="stmt"/>
+        <line num="71" count="3" type="stmt"/>
+        <line num="72" count="3" type="stmt"/>
+        <line num="73" count="3" type="stmt"/>
+        <line num="77" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="79" count="1" type="stmt"/>
+        <line num="80" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="83" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="91" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="94" count="2" type="stmt"/>
+        <line num="96" count="2" type="stmt"/>
+        <line num="100" count="3" type="stmt"/>
+        <line num="106" count="13" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.utils">
+      <metrics statements="57" coveredstatements="57" conditionals="38" coveredconditionals="33" methods="11" coveredmethods="11"/>
+      <file name="chartDataTransform.ts" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/utils/chartDataTransform.ts">
+        <metrics statements="17" coveredstatements="17" conditionals="6" coveredconditionals="6" methods="4" coveredmethods="4"/>
+        <line num="21" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="5" type="stmt"/>
+        <line num="26" count="5" type="stmt"/>
+        <line num="27" count="12" type="stmt"/>
+        <line num="28" count="12" type="stmt"/>
+        <line num="35" count="5" type="stmt"/>
+        <line num="36" count="5" type="stmt"/>
+        <line num="37" count="5" type="stmt"/>
+        <line num="40" count="5" type="stmt"/>
+        <line num="41" count="5" type="stmt"/>
+        <line num="43" count="5" type="stmt"/>
+        <line num="44" count="8" type="stmt"/>
+        <line num="46" count="8" type="stmt"/>
+        <line num="52" count="8" type="stmt"/>
+        <line num="55" count="5" type="stmt"/>
+        <line num="62" count="4" type="stmt"/>
+        <line num="63" count="7" type="stmt"/>
+      </file>
+      <file name="dateFormatters.ts" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/utils/dateFormatters.ts">
+        <metrics statements="12" coveredstatements="12" conditionals="0" coveredconditionals="0" methods="4" coveredmethods="4"/>
+        <line num="11" count="41" type="stmt"/>
+        <line num="13" count="41" type="stmt"/>
+        <line num="14" count="41" type="stmt"/>
+        <line num="15" count="41" type="stmt"/>
+        <line num="16" count="41" type="stmt"/>
+        <line num="17" count="41" type="stmt"/>
+        <line num="19" count="41" type="stmt"/>
+        <line num="26" count="15" type="stmt"/>
+        <line num="33" count="11" type="stmt"/>
+        <line num="34" count="11" type="stmt"/>
+        <line num="41" count="11" type="stmt"/>
+        <line num="42" count="11" type="stmt"/>
+      </file>
+      <file name="sortUtils.ts" path="/Users/maheshkokare/PycharmProjects/orbital-tech-assignment/frontend/src/utils/sortUtils.ts">
+        <metrics statements="28" coveredstatements="28" conditionals="32" coveredconditionals="27" methods="3" coveredmethods="3"/>
+        <line num="22" count="21" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="12" type="stmt"/>
+        <line num="25" count="24" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="9" type="stmt"/>
+        <line num="32" count="49" type="stmt"/>
+        <line num="33" count="53" type="stmt"/>
+        <line num="34" count="53" type="stmt"/>
+        <line num="36" count="53" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="21" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="21" type="cond" truecount="2" falsecount="0"/>
+        <line num="40" count="21" type="stmt"/>
+        <line num="41" count="21" type="stmt"/>
+        <line num="43" count="21" type="cond" truecount="4" falsecount="0"/>
+        <line num="44" count="2" type="stmt"/>
+        <line num="45" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="46" count="5" type="stmt"/>
+        <line num="47" count="5" type="stmt"/>
+        <line num="48" count="14" type="cond" truecount="2" falsecount="0"/>
+        <line num="49" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="52" count="12" type="stmt"/>
+        <line num="54" count="32" type="cond" truecount="1" falsecount="1"/>
+        <line num="55" count="32" type="stmt"/>
+        <line num="59" count="53" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="45" type="cond" truecount="2" falsecount="0"/>
+        <line num="62" count="7" type="stmt"/>
+        <line num="64" count="38" type="cond" truecount="2" falsecount="0"/>
+        <line num="70" count="4" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

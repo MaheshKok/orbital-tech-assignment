@@ -74,6 +74,8 @@ export function Dashboard() {
 		<Box minH="100vh" bgGradient="linear(to-b, gray.50, white)">
 			{/* Top Bar with Glassmorphism */}
 			<Box
+				as="header"
+				role="banner"
 				bg="whiteAlpha.900"
 				backdropFilter="blur(12px)"
 				borderBottomWidth="1px"
@@ -128,7 +130,13 @@ export function Dashboard() {
 			</Box>
 
 			{/* Main Content */}
-			<Container maxW="7xl" py={12}>
+			<Container
+				as="main"
+				role="main"
+				maxW="7xl"
+				py={12}
+				aria-label="Usage Dashboard"
+			>
 				<VStack spacing={10} align="stretch">
 					{/* Welcome Section */}
 					<Box>
@@ -146,7 +154,12 @@ export function Dashboard() {
 					</Box>
 
 					{/* Stats Cards */}
-					<SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
+					<SimpleGrid
+						columns={{ base: 1, md: 3 }}
+						spacing={8}
+						role="region"
+						aria-label="Usage Statistics"
+					>
 						{/* Total Credits */}
 						<Card variant="elevated">
 							<CardBody>
@@ -264,7 +277,14 @@ export function Dashboard() {
 			</Container>
 
 			{/* Detailed Footer */}
-			<Box borderTopWidth="1px" borderColor="gray.200" bg="white" mt="auto">
+			<Box
+				as="footer"
+				role="contentinfo"
+				borderTopWidth="1px"
+				borderColor="gray.200"
+				bg="white"
+				mt="auto"
+			>
 				<Container maxW="7xl" py={8}>
 					<Flex
 						justify="space-between"
