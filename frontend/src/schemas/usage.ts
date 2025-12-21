@@ -10,10 +10,21 @@ import { z } from "zod";
  */
 export const UsageItemSchema = z.object({
 	message_id: z.number().int().positive(),
-	timestamp: z
-		.string()
-		.datetime({ offset: true })
-		.or(z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)),
+	timestamp: z.preprocess(
+		(value) => {
+			if (typeof value !== "string") return value;
+
+			// If backend sends a timestamp without timezone info, assume UTC and append "Z".
+			// This avoids Date parsing differences where no-offset timestamps are treated as local time.
+			const noOffsetIso = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?$/;
+			if (noOffsetIso.test(value)) {
+				return `${value}Z`;
+			}
+
+			return value;
+		},
+		z.string().datetime({ offset: true })
+	),
 	report_name: z.string().optional(),
 	credits_used: z.number().nonnegative(),
 });

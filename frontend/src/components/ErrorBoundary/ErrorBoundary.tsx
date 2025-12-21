@@ -15,6 +15,7 @@ import {
 	Icon,
 } from "@chakra-ui/react";
 import { WarningTwoIcon } from "@chakra-ui/icons";
+import { isDev, isProd } from "../../config/env";
 
 interface Props {
 	children: ReactNode;
@@ -45,7 +46,7 @@ class ErrorBoundary extends Component<Props, State> {
 		this.setState({ errorInfo });
 
 		// Log error to monitoring service in production
-		if (import.meta.env.PROD) {
+		if (isProd) {
 			// TODO: Send to error monitoring service (Sentry, etc.)
 			console.error("Uncaught error:", error, errorInfo);
 		}
@@ -80,7 +81,7 @@ class ErrorBoundary extends Component<Props, State> {
 						</Text>
 
 						{/* Show error details in development */}
-						{import.meta.env.DEV && this.state.error && (
+						{isDev && this.state.error && (
 							<Box
 								w="full"
 								p={4}

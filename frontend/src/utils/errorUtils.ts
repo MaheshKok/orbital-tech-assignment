@@ -6,6 +6,7 @@
 import { AxiosError } from "axios";
 import { ZodError } from "zod";
 import { ERROR_MESSAGES } from "../constants";
+import { isDev } from "../config/env";
 
 /**
  * Extracts a user-friendly message from various error types.
@@ -63,7 +64,7 @@ export function handleError(error: unknown, context?: string): string {
 	const prefix = context ? `[${context}] ` : "";
 
 	// Log full error details in development
-	if (import.meta.env.DEV) {
+	if (isDev) {
 		console.error(`${prefix}Error:`, error);
 	}
 
