@@ -109,10 +109,10 @@ export function UsageTable({ data }: UsageTableProps) {
 				<Table variant="elegant">
 					<Thead>
 						<Tr>
-							<Th w="100px">ID</Th>
+							<Th w="100px">Message ID</Th>
 							<Th>Timestamp</Th>
-							{renderSortableHeader("report_name", "Report Type")}
-							{renderSortableHeader("credits_used", "Credits")}
+							{renderSortableHeader("report_name", "Report Name")}
+							{renderSortableHeader("credits_used", "Credits Used")}
 						</Tr>
 					</Thead>
 					<Tbody>

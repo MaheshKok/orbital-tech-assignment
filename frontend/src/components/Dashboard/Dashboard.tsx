@@ -23,7 +23,6 @@ import {
 	FiFileText,
 	FiActivity,
 	FiClock,
-	FiTrendingUp,
 } from "react-icons/fi";
 import { useUsageData } from "../../api/usage";
 import { UsageChart } from "../UsageChart";
@@ -165,12 +164,6 @@ export function Dashboard() {
 												{stats.total.toFixed(2)}
 											</StatNumber>
 										</Stat>
-										<HStack mt={2} spacing={1}>
-											<Icon as={FiTrendingUp} color="green.500" />
-											<Text fontSize="sm" color="green.600" fontWeight="medium">
-												+12.5% vs last period
-											</Text>
-										</HStack>
 									</Box>
 									<Flex p={3} bg="blue.50" rounded="2xl" color="brand.600">
 										<Icon as={FiCreditCard} w={6} h={6} />
