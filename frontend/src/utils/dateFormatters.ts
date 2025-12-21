@@ -21,9 +21,10 @@ export function formatTimestamp(iso: string): string {
 
 /**
  * Extract UTC date (YYYY-MM-DD) from ISO timestamp.
+ * Uses proper Date parsing to handle timezone offsets correctly.
  */
 export function extractUTCDate(iso: string): string {
-	return iso.split("T")[0];
+	return new Date(iso).toISOString().slice(0, 10);
 }
 
 /**

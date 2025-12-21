@@ -1,19 +1,17 @@
 /**
  * TypeScript type definitions for usage data.
- * These mirror the backend API contract.
+ *
+ * API types are inferred from Zod schemas (single source of truth).
+ * Additional UI-specific types are defined here.
  */
 
-export interface UsageItem {
-	message_id: number;
-	timestamp: string;
-	report_name?: string; // Optional - omitted when not a report
-	credits_used: number;
-}
+// Re-export API types from schemas (Zod-inferred = single source of truth)
+export type {
+	UsageItemFromSchema as UsageItem,
+	UsageResponseFromSchema as UsageResponse,
+} from "../schemas/usage";
 
-export interface UsageResponse {
-	usage: UsageItem[];
-}
-
+// UI-specific types (not from API)
 export type SortDirection = "asc" | "desc" | null;
 
 export type SortableColumn = "report_name" | "credits_used";

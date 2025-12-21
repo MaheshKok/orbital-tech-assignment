@@ -1,23 +1,24 @@
-@import "tailwindcss";
+/**
+ * Global Styles.
+ * Minimal base styles - Chakra UI handles most styling.
+ */
 
-/* Custom base styles */
-@layer base {
-	html {
-		scroll-behavior: smooth;
-	}
+html {
+	scroll-behavior: smooth;
+}
 
-	body {
-		margin: 0;
-		min-width: 320px;
-		min-height: 100vh;
-		font-family:
-			system-ui,
-			-apple-system,
-			BlinkMacSystemFont,
-			"Segoe UI",
-			Roboto,
-			sans-serif;
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-	}
+body {
+	margin: 0;
+	min-width: 320px;
+	min-height: 100vh;
+	font-family:
+		"Inter",
+		system-ui,
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }

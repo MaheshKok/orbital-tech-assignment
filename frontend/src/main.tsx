@@ -10,14 +10,15 @@ import { ChakraProvider } from "@chakra-ui/react";
 import App from "./App";
 import theme from "./theme";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { API_CONFIG } from "./constants";
+import { apiConfig } from "./config/env";
 
-// Create a QueryClient instance
+// Create a QueryClient instance with centralized config
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			refetchOnWindowFocus: false,
-			retry: API_CONFIG.RETRY_COUNT,
+			retry: apiConfig.retryCount,
+			retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 		},
 	},
 });

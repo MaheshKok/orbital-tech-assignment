@@ -8,24 +8,24 @@
  */
 
 import axios from "axios";
-
-// Use empty string for relative URLs (works with proxies)
-// or VITE_API_URL for direct API access
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+import { apiConfig, isDev } from "../config/env";
 
 export const apiClient = axios.create({
-	baseURL: API_BASE_URL,
+	baseURL: apiConfig.baseUrl,
 	headers: {
 		"Content-Type": "application/json",
 	},
-	timeout: 30000,
+	timeout: apiConfig.timeout,
 });
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
 	(response) => response,
 	(error) => {
-		console.error("API Error:", error);
+		// Only log in development - production should use observability
+		if (isDev) {
+			console.error("API Error:", error);
+		}
 		return Promise.reject(error);
 	}
 );

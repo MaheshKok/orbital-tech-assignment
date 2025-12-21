@@ -34,8 +34,8 @@ frontend/
 │   │   │   ├── UsageTable.tsx  # Sortable data table
 │   │   │   └── SortIndicator.tsx # Column sort direction indicator
 │   │   └── ui/
-│   │       ├── LoadingSpinner.tsx
-│   │       └── ErrorMessage.tsx
+│   │       ├── components.tsx      # Centralized UI components
+│   │       └── index.ts            # Re-exports
 │   ├── hooks/
 │   │   └── useUrlSortState.ts  # URL-synced multi-column sorting
 │   ├── types/
@@ -49,7 +49,13 @@ frontend/
 │   │   └── testUtils.tsx       # Test utilities with providers
 │   ├── App.tsx                 # Root component with routing
 │   ├── main.tsx                # Entry point with providers
-│   ├── theme.ts                # Chakra UI custom theme
+│   ├── config/
+│   │   └── env.ts              # Zod-validated environment config
+│   ├── schemas/
+│   │   └── usage.ts            # Zod schemas for API validation
+│   ├── theme/
+│   │   ├── index.ts            # Chakra UI custom theme
+│   │   └── tokens.ts           # Design tokens (colors, typography)
 │   └── index.css               # Global styles
 ├── cypress/
 │   ├── e2e/
@@ -96,21 +102,33 @@ All dates are processed in **UTC** for consistency:
 
 ## Key Implementation Details
 
-### 1. Type Definitions
+### 1. Type Definitions (Zod-Inferred)
+
+Types are inferred from Zod schemas for runtime validation and type safety:
 
 ```typescript
-// types/usage.ts
-export interface UsageItem {
-	message_id: number;
-	timestamp: string;
-	report_name?: string; // Optional - omitted when not a report
-	credits_used: number;
-}
+// schemas/usage.ts - Single source of truth
+import { z } from "zod";
 
-export interface UsageResponse {
-	usage: UsageItem[];
-}
+export const UsageItemSchema = z.object({
+	message_id: z.number(),
+	timestamp: z.string(),
+	report_name: z.string().optional(),
+	credits_used: z.number(),
+});
 
+export const UsageResponseSchema = z.object({
+	usage: z.array(UsageItemSchema),
+});
+
+// Inferred types
+export type UsageItem = z.infer<typeof UsageItemSchema>;
+export type UsageResponse = z.infer<typeof UsageResponseSchema>;
+
+// types/usage.ts - Re-exports from schemas
+export type { UsageItem, UsageResponse } from "../schemas/usage";
+
+// Additional types
 export type SortDirection = "asc" | "desc" | null;
 export type SortableColumn = "report_name" | "credits_used";
 
@@ -372,9 +390,10 @@ export function formatTimestamp(iso: string): string {
 
 /**
  * Extract UTC date (YYYY-MM-DD) from ISO timestamp.
+ * Uses Date object for proper parsing.
  */
 export function extractUTCDate(iso: string): string {
-	return iso.split("T")[0];
+	return new Date(iso).toISOString().slice(0, 10);
 }
 
 /**
@@ -407,19 +426,15 @@ export function formatChartTooltipDate(isoDate: string): string {
 ### 6. Preserving Original Order (Stable Sort)
 
 ```typescript
-// In Dashboard component
-const [originalIndices, setOriginalIndices] = useState<Map<number, number>>(
-	new Map()
-);
-
-useEffect(() => {
-	if (data) {
-		const indices = new Map<number, number>(
-			data.usage.map((item, idx) => [item.message_id, idx])
-		);
-		setOriginalIndices(indices);
-	}
+// In UsageTable component - memoized Map for original indices
+const originalIndices = useMemo(() => {
+	return new Map(data.map((item, idx) => [item.message_id, idx]));
 }, [data]);
+
+// Sort data based on current sort state
+const sortedData = useMemo(() => {
+	return sortUsageData(data, sortOrder, originalIndices);
+}, [data, sortOrder, originalIndices]);
 ```
 
 This ensures that when all sorts are cleared (third click), the table returns to the original API order.
@@ -499,7 +514,7 @@ Test coverage includes:
 
 - `UsageTable` component rendering and sorting
 - `SortIndicator` visual states
-- `LoadingSpinner` and `ErrorMessage` components
+- `LoadingState` and `ErrorState` components
 - `sortUtils` multi-column sorting logic
 - `dateFormatters` UTC formatting functions
 - `chartDataTransform` data aggregation
@@ -558,19 +573,26 @@ Originally planned to use Tailwind CSS, but switched to **Chakra UI** for:
 
 ## API Contract
 
-The frontend expects this response from `GET /usage`:
+The frontend expects this response from `GET /usage`, validated at runtime using Zod:
 
 ```typescript
-interface UsageResponse {
-	usage: UsageItem[];
-}
+// schemas/usage.ts
+import { z } from "zod";
 
-interface UsageItem {
-	message_id: number;
-	timestamp: string; // ISO 8601 format
-	report_name?: string; // Optional - omitted when not a report
-	credits_used: number; // Always 2 decimal places
-}
+export const UsageItemSchema = z.object({
+	message_id: z.number(),
+	timestamp: z.string(), // ISO 8601 format
+	report_name: z.string().optional(), // Optional - omitted when not a report
+	credits_used: z.number(), // Always 2 decimal places
+});
+
+export const UsageResponseSchema = z.object({
+	usage: z.array(UsageItemSchema),
+});
+
+// Types inferred from schemas
+export type UsageItem = z.infer<typeof UsageItemSchema>;
+export type UsageResponse = z.infer<typeof UsageResponseSchema>;
 ```
 
 ## Build Optimization
@@ -606,7 +628,7 @@ Production build uses nginx for serving static files.
 
 ## Theming
 
-Custom Chakra UI theme in `src/theme.ts`:
+Custom Chakra UI theme in `src/theme/index.ts` with design tokens in `src/theme/tokens.ts`:
 
 ```typescript
 const theme = extendTheme({

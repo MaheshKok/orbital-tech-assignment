@@ -88,7 +88,7 @@ describe("Table Sorting", () => {
 
 	describe("Credits Column Sorting", () => {
 		it("should sort by credits ascending on first click", () => {
-			cy.contains("th", "Credits Used").click();
+			cy.contains("th", "Credits Used").find("button").click();
 
 			// URL should be updated (URL-encoded colon is %3A)
 			cy.url().should("include", "sort=credits_used%3Aasc");
@@ -98,8 +98,8 @@ describe("Table Sorting", () => {
 		});
 
 		it("should sort by credits descending on second click", () => {
-			cy.contains("th", "Credits Used").click();
-			cy.contains("th", "Credits Used").click();
+			cy.contains("th", "Credits Used").find("button").click();
+			cy.contains("th", "Credits Used").find("button").click();
 
 			cy.url().should("include", "sort=credits_used%3Adesc");
 
@@ -108,9 +108,9 @@ describe("Table Sorting", () => {
 		});
 
 		it("should return to original order on third click", () => {
-			cy.contains("th", "Credits Used").click();
-			cy.contains("th", "Credits Used").click();
-			cy.contains("th", "Credits Used").click();
+			cy.contains("th", "Credits Used").find("button").click();
+			cy.contains("th", "Credits Used").find("button").click();
+			cy.contains("th", "Credits Used").find("button").click();
 
 			// URL should not have sort param
 			cy.url().should("not.include", "sort=");
@@ -119,7 +119,7 @@ describe("Table Sorting", () => {
 
 	describe("Report Name Column Sorting", () => {
 		it("should sort by report name ascending with empty names at end", () => {
-			cy.contains("th", "Report Name").click();
+			cy.contains("th", "Report Name").find("button").click();
 
 			cy.url().should("include", "sort=report_name%3Aasc");
 
@@ -128,8 +128,8 @@ describe("Table Sorting", () => {
 		});
 
 		it("should sort by report name descending with empty names at end", () => {
-			cy.contains("th", "Report Name").click();
-			cy.contains("th", "Report Name").click();
+			cy.contains("th", "Report Name").find("button").click();
+			cy.contains("th", "Report Name").find("button").click();
 
 			cy.url().should("include", "sort=report_name%3Adesc");
 
@@ -140,8 +140,8 @@ describe("Table Sorting", () => {
 
 	describe("Multi-Column Sorting", () => {
 		it("should support sorting by multiple columns", () => {
-			cy.contains("th", "Credits Used").click();
-			cy.contains("th", "Report Name").click();
+			cy.contains("th", "Credits Used").find("button").click();
+			cy.contains("th", "Report Name").find("button").click();
 
 			// URL-encoded: colon is %3A, comma is %2C
 			cy.url().should("include", "sort=credits_used%3Aasc%2Creport_name%3Aasc");

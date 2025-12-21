@@ -1,15 +1,6 @@
-// Legacy exports (for backwards compatibility)
-export { LoadingSpinner } from "./LoadingSpinner";
-export { ErrorMessage } from "./ErrorMessage";
+/**
+ * Centralized UI Components.
+ * Single export point for all reusable UI primitives.
+ */
 
-// New centralized components
-export {
-	AppButton,
-	AppBadge,
-	StatCard,
-	ContentCard,
-	LoadingState,
-	ErrorState,
-	EmptyState,
-	SectionHeader,
-} from "./components";
+export { LoadingState, ErrorState } from "./components";

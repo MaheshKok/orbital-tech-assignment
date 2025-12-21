@@ -4,7 +4,7 @@ export default {
 	setupFilesAfterEnv: ["<rootDir>/src/test/setupTests.ts"],
 	moduleNameMapper: {
 		"\\.(css|less|scss|sass)$": "identity-obj-proxy",
-		"^@/(.*)$": "<rootDir>/src/$1",
+		// Note: No @/ alias - not used in codebase, keeps config aligned with TS/Vite
 	},
 	transform: {
 		"^.+\\.(ts|tsx)$": [
@@ -24,6 +24,7 @@ export default {
 		"!src/**/*.d.ts",
 		"!src/main.tsx",
 		"!src/test/**/*",
+		"!src/config/**/*", // Exclude config from coverage
 	],
 	coverageThreshold: {
 		global: {

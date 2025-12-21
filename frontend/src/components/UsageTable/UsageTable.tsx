@@ -3,7 +3,7 @@
  * Displays usage data with sortable columns.
  */
 
-import { useMemo, useEffect, useState } from "react";
+import { useMemo } from "react";
 import {
 	Table,
 	Thead,
@@ -16,6 +16,7 @@ import {
 	Text,
 	Badge,
 	Flex,
+	Button,
 } from "@chakra-ui/react";
 import type { UsageItem, SortableColumn } from "../../types/usage";
 import { formatTimestamp } from "../../utils/dateFormatters";
@@ -31,27 +32,10 @@ export function UsageTable({ data }: UsageTableProps) {
 	const { sortOrder, getDirection, getSortPriority, toggleSort } =
 		useUrlSortState();
 
-	// Store original indices for stable sorting
-	const [originalIndices] = useState<Map<number, number>>(() => {
+	// Memoize original indices for stable sorting - recreate when data IDs change
+	const originalIndices = useMemo(() => {
 		return new Map(data.map((item, idx) => [item.message_id, idx]));
-	});
-
-	// Update original indices when data changes (e.g., refetch)
-	useEffect(() => {
-		// Only update if data has actually changed
-		const currentIds = Array.from(originalIndices.keys());
-		const dataIds = data.map((item) => item.message_id);
-		const hasChanged =
-			currentIds.length !== dataIds.length ||
-			currentIds.some((id, idx) => id !== dataIds[idx]);
-
-		if (hasChanged) {
-			originalIndices.clear();
-			data.forEach((item, idx) => {
-				originalIndices.set(item.message_id, idx);
-			});
-		}
-	}, [data, originalIndices]);
+	}, [data]);
 
 	// Sort data based on current sort state
 	const sortedData = useMemo(() => {
@@ -68,18 +52,7 @@ export function UsageTable({ data }: UsageTableProps) {
 
 		return (
 			<Th
-				cursor="pointer"
-				_hover={{ bg: "gray.100" }}
-				onClick={() => handleHeaderClick(column)}
-				onKeyDown={(e) => {
-					if (e.key === "Enter" || e.key === " ") {
-						e.preventDefault();
-						handleHeaderClick(column);
-					}
-				}}
-				tabIndex={0}
-				role="columnheader button"
-				userSelect="none"
+				scope="col"
 				aria-sort={
 					direction === "asc"
 						? "ascending"
@@ -87,18 +60,32 @@ export function UsageTable({ data }: UsageTableProps) {
 						  ? "descending"
 						  : "none"
 				}
-				aria-label={`Sort by ${label}, currently ${
-					direction === "asc"
-						? "ascending"
-						: direction === "desc"
-						  ? "descending"
-						  : "unsorted"
-				}`}
 			>
-				<Flex align="center">
-					{label}
-					<SortIndicator direction={direction} priority={priority} />
-				</Flex>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => handleHeaderClick(column)}
+					fontWeight="semibold"
+					fontSize="xs"
+					textTransform="uppercase"
+					letterSpacing="wider"
+					color="gray.500"
+					h="auto"
+					p={0}
+					_hover={{ bg: "transparent", color: "gray.700" }}
+					aria-label={`Sort by ${label}, currently ${
+						direction === "asc"
+							? "ascending"
+							: direction === "desc"
+							  ? "descending"
+							  : "unsorted"
+					}`}
+				>
+					<Flex align="center">
+						{label}
+						<SortIndicator direction={direction} priority={priority} />
+					</Flex>
+				</Button>
 			</Th>
 		);
 	};

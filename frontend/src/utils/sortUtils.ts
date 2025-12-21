@@ -20,11 +20,7 @@ export function sortUsageData(
 ): UsageItem[] {
 	// If no sorts applied, return original order
 	if (sortOrder.length === 0) {
-		return [...data].sort(
-			(a, b) =>
-				(originalIndices.get(a.message_id) ?? 0) -
-				(originalIndices.get(b.message_id) ?? 0)
-		);
+		return data;
 	}
 
 	return [...data].sort((a, b) => {

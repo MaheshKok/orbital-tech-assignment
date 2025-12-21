@@ -27,11 +27,12 @@ import {
 import { useUsageData } from "../../api/usage";
 import { UsageChart } from "../UsageChart";
 import { UsageTable } from "../UsageTable";
-import { LoadingSpinner, ErrorMessage } from "../ui";
+import { LoadingState, ErrorState } from "../ui";
 import {
 	transformToChartData,
 	calculateTotalCredits,
 } from "../../utils/chartDataTransform";
+import { getUserFriendlyErrorMessage } from "../../utils/errorUtils";
 
 export function Dashboard() {
 	const { data, isLoading, isError, error, refetch } = useUsageData();
@@ -55,16 +56,14 @@ export function Dashboard() {
 	}, [usage]);
 
 	if (isLoading) {
-		return <LoadingSpinner size="xl" message="Loading usage data..." />;
+		return <LoadingState size="xl" message="Loading usage data..." />;
 	}
 
 	if (isError) {
 		return (
-			<ErrorMessage
+			<ErrorState
 				title="Failed to load usage data"
-				message={
-					error?.message || "An unexpected error occurred. Please try again."
-				}
+				message={getUserFriendlyErrorMessage(error)}
 				onRetry={refetch}
 			/>
 		);

@@ -6,31 +6,32 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "./client";
 import { UsageResponseSchema } from "../schemas/usage";
-import { API_CONFIG, QUERY_KEYS } from "../constants";
-import type { UsageResponse } from "../types/usage";
+import { apiConfig } from "../config/env";
+import type { UsageResponseFromSchema } from "../schemas/usage";
+
+/** Query key for usage data */
+export const USAGE_QUERY_KEY = ["usage"] as const;
 
 /**
  * Fetch usage data from the backend API.
  * Validates response using Zod schema.
  */
-async function fetchUsageData(): Promise<UsageResponse> {
+async function fetchUsageData(): Promise<UsageResponseFromSchema> {
 	const response = await apiClient.get("/usage");
 	// Validate response data with Zod
-	const validated = UsageResponseSchema.parse(response.data);
-	return validated;
+	return UsageResponseSchema.parse(response.data);
 }
 
 /**
  * Custom hook for fetching usage data.
  * Uses TanStack Query for caching and automatic refetching.
+ * Note: retry is configured globally in QueryClient, not per-query.
  */
 export function useUsageData() {
 	return useQuery({
-		queryKey: QUERY_KEYS.USAGE,
+		queryKey: USAGE_QUERY_KEY,
 		queryFn: fetchUsageData,
-		staleTime: API_CONFIG.STALE_TIME,
-		gcTime: API_CONFIG.CACHE_TIME,
-		retry: API_CONFIG.RETRY_COUNT,
-		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+		staleTime: apiConfig.staleTime,
+		gcTime: apiConfig.cacheTime,
 	});
 }

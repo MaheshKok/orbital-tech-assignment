@@ -111,17 +111,20 @@ describe("UsageTable", () => {
 		const creditsHeader = screen.getByRole("columnheader", {
 			name: /credits used/i,
 		});
+		const creditsButton = screen.getByRole("button", {
+			name: /sort by credits used/i,
+		});
 
 		// Initially no sort
 		expect(creditsHeader).toHaveAttribute("aria-sort", "none");
 
 		// First click - ascending
-		fireEvent.click(creditsHeader);
+		fireEvent.click(creditsButton);
 
 		// Second click - descending
-		fireEvent.click(creditsHeader);
+		fireEvent.click(creditsButton);
 
 		// Third click - back to none
-		fireEvent.click(creditsHeader);
+		fireEvent.click(creditsButton);
 	});
 });
