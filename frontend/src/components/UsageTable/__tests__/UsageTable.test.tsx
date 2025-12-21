@@ -48,9 +48,9 @@ describe("UsageTable", () => {
 	it("should display message IDs correctly", () => {
 		render(<UsageTable data={mockData} />);
 
-		expect(screen.getByText("1000")).toBeInTheDocument();
-		expect(screen.getByText("1001")).toBeInTheDocument();
-		expect(screen.getByText("1002")).toBeInTheDocument();
+		expect(screen.getByText("#1000")).toBeInTheDocument();
+		expect(screen.getByText("#1001")).toBeInTheDocument();
+		expect(screen.getByText("#1002")).toBeInTheDocument();
 	});
 
 	it("should format timestamps correctly", () => {
@@ -69,11 +69,11 @@ describe("UsageTable", () => {
 		expect(screen.getByText("Short Lease Report")).toBeInTheDocument();
 	});
 
-	it("should display dash for messages without report names", () => {
+	it("should display N/A for messages without report names", () => {
 		render(<UsageTable data={mockData} />);
 
-		// Check for em dash character
-		const cells = screen.getAllByText("—");
+		// Check for N/A text
+		const cells = screen.getAllByText("N/A");
 		expect(cells.length).toBeGreaterThanOrEqual(1);
 	});
 
@@ -87,7 +87,7 @@ describe("UsageTable", () => {
 
 	it("should display message count in footer", () => {
 		render(<UsageTable data={mockData} />);
-		expect(screen.getByText("3")).toBeInTheDocument();
+		expect(screen.getByText(/Showing\s+3\s+records/)).toBeInTheDocument();
 	});
 
 	it("should have sortable column headers", () => {

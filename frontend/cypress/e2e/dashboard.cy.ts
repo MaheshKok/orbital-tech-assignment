@@ -11,28 +11,28 @@ describe("Dashboard Page", () => {
 
 	describe("Page Structure", () => {
 		it("should display the dashboard header", () => {
-			cy.contains("Credit Usage Dashboard").should("be.visible");
-			cy.contains("Orbital Copilot - Current Billing Period").should(
-				"be.visible"
-			);
+			cy.contains("Orbital Copilot").should("be.visible");
+			cy.contains("Usage Dashboard").should("be.visible");
 		});
 
 		it("should display stats cards", () => {
-			cy.contains("Total Credits").should("be.visible");
-			cy.contains("Total Messages").should("be.visible");
+			cy.contains("Total Credits Used").should("be.visible");
+			cy.contains("Messages Processed").should("be.visible");
 			cy.contains("Reports Generated").should("be.visible");
 		});
 
 		it("should display the chart section", () => {
-			cy.contains("Daily Credit Usage").should("be.visible");
+			cy.contains("Daily Usage Trends").should("be.visible");
 		});
 
 		it("should display the table section", () => {
-			cy.contains("Usage Details").should("be.visible");
-			cy.contains("Message ID").should("be.visible");
-			cy.contains("Timestamp").should("be.visible");
-			cy.contains("Report Name").should("be.visible");
-			cy.contains("Credits Used").should("be.visible");
+			cy.contains("Detailed Activity Log")
+				.scrollIntoView()
+				.should("be.visible");
+			cy.contains("th", "Message ID").scrollIntoView().should("be.visible");
+			cy.contains("th", "Timestamp").should("be.visible");
+			cy.contains("th", "Report Name").should("be.visible");
+			cy.contains("th", "Credits Used").should("be.visible");
 		});
 	});
 
@@ -90,8 +90,8 @@ describe("Table Sorting", () => {
 		it("should sort by credits ascending on first click", () => {
 			cy.contains("th", "Credits Used").click();
 
-			// URL should be updated
-			cy.url().should("include", "sort=credits_used:asc");
+			// URL should be updated (URL-encoded colon is %3A)
+			cy.url().should("include", "sort=credits_used%3Aasc");
 
 			// First row should have lowest credits (5.20)
 			cy.get("tbody tr").first().should("contain", "5.20");
@@ -101,7 +101,7 @@ describe("Table Sorting", () => {
 			cy.contains("th", "Credits Used").click();
 			cy.contains("th", "Credits Used").click();
 
-			cy.url().should("include", "sort=credits_used:desc");
+			cy.url().should("include", "sort=credits_used%3Adesc");
 
 			// First row should have highest credits (79.00)
 			cy.get("tbody tr").first().should("contain", "79.00");
@@ -121,7 +121,7 @@ describe("Table Sorting", () => {
 		it("should sort by report name ascending with empty names at end", () => {
 			cy.contains("th", "Report Name").click();
 
-			cy.url().should("include", "sort=report_name:asc");
+			cy.url().should("include", "sort=report_name%3Aasc");
 
 			// First row should have alphabetically first report
 			cy.get("tbody tr").first().should("contain", "Maintenance");
@@ -131,7 +131,7 @@ describe("Table Sorting", () => {
 			cy.contains("th", "Report Name").click();
 			cy.contains("th", "Report Name").click();
 
-			cy.url().should("include", "sort=report_name:desc");
+			cy.url().should("include", "sort=report_name%3Adesc");
 
 			// First row should have alphabetically last report
 			cy.get("tbody tr").first().should("contain", "Tenant");
@@ -143,7 +143,8 @@ describe("Table Sorting", () => {
 			cy.contains("th", "Credits Used").click();
 			cy.contains("th", "Report Name").click();
 
-			cy.url().should("include", "sort=credits_used:asc,report_name:asc");
+			// URL-encoded: colon is %3A, comma is %2C
+			cy.url().should("include", "sort=credits_used%3Aasc%2Creport_name%3Aasc");
 		});
 	});
 });
@@ -198,34 +199,36 @@ describe("Error State", () => {
 	});
 
 	it("should retry when clicking Try Again", () => {
-		let requestCount = 0;
-
-		cy.intercept("GET", "**/usage", (req) => {
-			requestCount++;
-			if (requestCount === 1) {
-				req.reply({ statusCode: 500 });
-			} else {
-				req.reply({
-					statusCode: 200,
-					body: {
-						usage: [
-							{
-								message_id: 1,
-								timestamp: "2024-04-29T02:00:00Z",
-								credits_used: 10,
-							},
-						],
-					},
-				});
-			}
-		}).as("retryUsage");
+		// First intercept: always fail to ensure error state is shown
+		cy.intercept("GET", "**/usage", {
+			statusCode: 500,
+			body: { error: "Server Error" },
+		}).as("failedUsage");
 
 		cy.visit("/");
-		cy.wait("@retryUsage");
+		cy.wait("@failedUsage");
 
-		cy.contains("Try Again").click();
-		cy.wait("@retryUsage");
+		// Wait for error message to appear
+		cy.contains("Failed to load usage data").should("be.visible");
+		cy.contains("button", "Try Again").should("be.visible");
 
-		cy.contains("Credit Usage Dashboard").should("be.visible");
+		// Now change intercept to succeed on retry
+		cy.intercept("GET", "**/usage", {
+			statusCode: 200,
+			body: {
+				usage: [
+					{
+						message_id: 1,
+						timestamp: "2024-04-29T02:00:00Z",
+						credits_used: 10,
+					},
+				],
+			},
+		}).as("successUsage");
+
+		cy.contains("button", "Try Again").click();
+		cy.wait("@successUsage");
+
+		cy.contains("Orbital Copilot").should("be.visible");
 	});
 });
