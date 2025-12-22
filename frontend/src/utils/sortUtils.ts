@@ -3,6 +3,7 @@
  * Implements multi-column, precedence-aware sorting with stable fallback.
  */
 
+import { USAGE_SORTABLE_COLUMNS } from "../types/usage";
 import type { UsageItem, SortEntry } from "../types/usage";
 
 /**
@@ -29,7 +30,7 @@ export function sortUsageData(
 			let comparison = 0;
 			let forceEnd = false;
 
-			if (column === "report_name") {
+			if (column === USAGE_SORTABLE_COLUMNS.REPORT_NAME) {
 				// Empty/undefined report names sort to the end ALWAYS
 				const aName = a.report_name ?? "";
 				const bName = b.report_name ?? "";
@@ -47,7 +48,7 @@ export function sortUsageData(
 				} else {
 					comparison = aName.localeCompare(bName);
 				}
-			} else if (column === "credits_used") {
+			} else if (column === USAGE_SORTABLE_COLUMNS.CREDITS_USED) {
 				comparison = a.credits_used - b.credits_used;
 			}
 

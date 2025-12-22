@@ -14,7 +14,13 @@ export type {
 // UI-specific types (not from API)
 export type SortDirection = "asc" | "desc" | null;
 
-export type SortableColumn = "report_name" | "credits_used";
+export const USAGE_SORTABLE_COLUMNS = {
+	REPORT_NAME: "report_name",
+	CREDITS_USED: "credits_used",
+} as const;
+
+export type SortableColumn =
+	(typeof USAGE_SORTABLE_COLUMNS)[keyof typeof USAGE_SORTABLE_COLUMNS];
 
 export interface SortEntry {
 	column: SortableColumn;

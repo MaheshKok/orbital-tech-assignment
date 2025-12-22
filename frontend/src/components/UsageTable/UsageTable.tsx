@@ -18,6 +18,7 @@ import {
 	Flex,
 	Button,
 } from "@chakra-ui/react";
+import { USAGE_SORTABLE_COLUMNS } from "../../types/usage";
 import type { UsageItem, SortableColumn } from "../../types/usage";
 import { formatTimestamp } from "../../utils/dateFormatters";
 import { sortUsageData } from "../../utils/sortUtils";
@@ -114,8 +115,14 @@ export function UsageTable({ data }: UsageTableProps) {
 								Message ID
 							</Th>
 							<Th scope="col">Timestamp</Th>
-							{renderSortableHeader("report_name", "Report Name")}
-							{renderSortableHeader("credits_used", "Credits Used")}
+							{renderSortableHeader(
+								USAGE_SORTABLE_COLUMNS.REPORT_NAME,
+								"Report Name"
+							)}
+							{renderSortableHeader(
+								USAGE_SORTABLE_COLUMNS.CREDITS_USED,
+								"Credits Used"
+							)}
 						</Tr>
 					</Thead>
 					<Tbody>

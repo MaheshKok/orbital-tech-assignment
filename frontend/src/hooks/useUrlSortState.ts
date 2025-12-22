@@ -5,13 +5,17 @@
 
 import { useSearchParams } from "react-router-dom";
 import { useCallback, useMemo } from "react";
+import { USAGE_SORTABLE_COLUMNS } from "../types/usage";
 import type { SortableColumn, SortEntry, SortDirection } from "../types/usage";
 
 /**
  * Parse and validate sort column from URL.
  */
 function isValidColumn(value: string): value is SortableColumn {
-	return value === "report_name" || value === "credits_used";
+	return (
+		value === USAGE_SORTABLE_COLUMNS.REPORT_NAME ||
+		value === USAGE_SORTABLE_COLUMNS.CREDITS_USED
+	);
 }
 
 /**
