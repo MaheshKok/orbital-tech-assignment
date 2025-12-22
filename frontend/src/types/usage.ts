@@ -6,10 +6,7 @@
  */
 
 // Re-export API types from schemas (Zod-inferred = single source of truth)
-export type {
-	UsageItem,
-	UsageResponse,
-} from "../schemas/usage";
+export type { UsageItem, UsageResponse } from "../schemas/usage";
 
 // UI-specific types (not from API)
 export enum SortDirectionEnum {

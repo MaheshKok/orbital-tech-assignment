@@ -58,8 +58,8 @@ export function sortUsageData(
 					// Empty report names always go to end, regardless of direction
 					return comparison;
 				}
-					return direction === SortDirectionEnum.ASC ? comparison : -comparison;
-				}
+				return direction === SortDirectionEnum.ASC ? comparison : -comparison;
+			}
 			// If equal, continue to next sort entry (tiebreaker)
 		}
 

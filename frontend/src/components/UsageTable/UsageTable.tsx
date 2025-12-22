@@ -51,16 +51,16 @@ export function UsageTable({ data }: UsageTableProps) {
 		const priority = getSortPriority(column);
 
 		return (
-				<Th
-					scope="col"
-					aria-sort={
-						direction === SortDirectionEnum.ASC
-							? "ascending"
-							: direction === SortDirectionEnum.DESC
-							  ? "descending"
-							  : "none"
-					}
-				>
+			<Th
+				scope="col"
+				aria-sort={
+					direction === SortDirectionEnum.ASC
+						? "ascending"
+						: direction === SortDirectionEnum.DESC
+						  ? "descending"
+						  : "none"
+				}
+			>
 				<Button
 					variant="ghost"
 					size="sm"
