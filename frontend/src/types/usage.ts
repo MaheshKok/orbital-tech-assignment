@@ -12,7 +12,12 @@ export type {
 } from "../schemas/usage";
 
 // UI-specific types (not from API)
-export type SortDirection = "asc" | "desc" | null;
+export enum SortDirectionEnum {
+	ASC = "asc",
+	DESC = "desc",
+}
+
+export type SortDirection = SortDirectionEnum | null;
 
 export const USAGE_SORTABLE_COLUMNS = {
 	REPORT_NAME: "report_name",
@@ -24,7 +29,7 @@ export type SortableColumn =
 
 export interface SortEntry {
 	column: SortableColumn;
-	direction: Exclude<SortDirection, null>;
+	direction: SortDirectionEnum;
 }
 
 export interface ChartDataPoint {

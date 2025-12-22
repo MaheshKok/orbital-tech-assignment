@@ -18,7 +18,7 @@ import {
 	Flex,
 	Button,
 } from "@chakra-ui/react";
-import { USAGE_SORTABLE_COLUMNS } from "../../types/usage";
+import { SortDirectionEnum, USAGE_SORTABLE_COLUMNS } from "../../types/usage";
 import type { UsageItem, SortableColumn } from "../../types/usage";
 import { formatTimestamp } from "../../utils/dateFormatters";
 import { sortUsageData } from "../../utils/sortUtils";
@@ -51,16 +51,16 @@ export function UsageTable({ data }: UsageTableProps) {
 		const priority = getSortPriority(column);
 
 		return (
-			<Th
-				scope="col"
-				aria-sort={
-					direction === "asc"
-						? "ascending"
-						: direction === "desc"
-						  ? "descending"
-						  : "none"
-				}
-			>
+				<Th
+					scope="col"
+					aria-sort={
+						direction === SortDirectionEnum.ASC
+							? "ascending"
+							: direction === SortDirectionEnum.DESC
+							  ? "descending"
+							  : "none"
+					}
+				>
 				<Button
 					variant="ghost"
 					size="sm"
@@ -74,9 +74,9 @@ export function UsageTable({ data }: UsageTableProps) {
 					p={0}
 					_hover={{ bg: "transparent", color: "gray.700" }}
 					aria-label={`Sort by ${label}, currently ${
-						direction === "asc"
+						direction === SortDirectionEnum.ASC
 							? "ascending"
-							: direction === "desc"
+							: direction === SortDirectionEnum.DESC
 							  ? "descending"
 							  : "unsorted"
 					}`}

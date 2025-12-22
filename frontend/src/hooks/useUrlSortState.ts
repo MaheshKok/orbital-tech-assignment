@@ -5,7 +5,7 @@
 
 import { useSearchParams } from "react-router-dom";
 import { useCallback, useMemo } from "react";
-import { USAGE_SORTABLE_COLUMNS } from "../types/usage";
+import { SortDirectionEnum, USAGE_SORTABLE_COLUMNS } from "../types/usage";
 import type { SortableColumn, SortEntry, SortDirection } from "../types/usage";
 
 /**
@@ -21,8 +21,8 @@ function isValidColumn(value: string): value is SortableColumn {
 /**
  * Parse and validate sort direction from URL.
  */
-function isValidDirection(value: string): value is "asc" | "desc" {
-	return value === "asc" || value === "desc";
+function isValidDirection(value: string): value is SortDirectionEnum {
+	return value === SortDirectionEnum.ASC || value === SortDirectionEnum.DESC;
 }
 
 /**
@@ -80,11 +80,16 @@ export function useUrlSortState() {
 
 				if (!currentEntry) {
 					// Not sorted → add as ascending (becomes lowest priority)
-					newSortOrder = [...sortOrder, { column, direction: "asc" }];
-				} else if (currentEntry.direction === "asc") {
+					newSortOrder = [
+						...sortOrder,
+						{ column, direction: SortDirectionEnum.ASC },
+					];
+				} else if (currentEntry.direction === SortDirectionEnum.ASC) {
 					// Ascending → change to descending (maintain position in order)
 					newSortOrder = sortOrder.map((e) =>
-						e.column === column ? { ...e, direction: "desc" as const } : e
+						e.column === column
+							? { ...e, direction: SortDirectionEnum.DESC }
+							: e
 					);
 				} else {
 					// Descending → remove from sort order entirely

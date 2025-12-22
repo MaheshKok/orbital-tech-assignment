@@ -5,17 +5,12 @@
 
 import { Icon, Badge, HStack } from "@chakra-ui/react";
 import { ChevronUpIcon, ChevronDownIcon, UpDownIcon } from "@chakra-ui/icons";
+import { SortDirectionEnum } from "../../types/usage";
 import type { SortDirection } from "../../types/usage";
 
 interface SortIndicatorProps {
 	direction: SortDirection;
 	priority?: number | null;
-}
-
-// Enum for type safety
-enum SortDirectionEnum {
-	ASC = "asc",
-	DESC = "desc",
 }
 
 export function SortIndicator({ direction, priority }: SortIndicatorProps) {
@@ -39,7 +34,7 @@ export function SortIndicator({ direction, priority }: SortIndicatorProps) {
 			{priority != null && (
 				<Badge
 					ml={1}
-					colorScheme="blue"	
+					colorScheme="blue"
 					variant="subtle"
 					fontSize="xs"
 					borderRadius="full"

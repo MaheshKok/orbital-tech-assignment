@@ -3,7 +3,7 @@
  * Implements multi-column, precedence-aware sorting with stable fallback.
  */
 
-import { USAGE_SORTABLE_COLUMNS } from "../types/usage";
+import { SortDirectionEnum, USAGE_SORTABLE_COLUMNS } from "../types/usage";
 import type { UsageItem, SortEntry } from "../types/usage";
 
 /**
@@ -58,8 +58,8 @@ export function sortUsageData(
 					// Empty report names always go to end, regardless of direction
 					return comparison;
 				}
-				return direction === "asc" ? comparison : -comparison;
-			}
+					return direction === SortDirectionEnum.ASC ? comparison : -comparison;
+				}
 			// If equal, continue to next sort entry (tiebreaker)
 		}
 

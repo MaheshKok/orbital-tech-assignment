@@ -3,6 +3,7 @@
  */
 
 import { sortUsageData } from "../sortUtils";
+import { SortDirectionEnum } from "../../types/usage";
 import type { UsageItem, SortEntry } from "../../types/usage";
 
 describe("sortUsageData", () => {
@@ -47,7 +48,7 @@ describe("sortUsageData", () => {
 	describe("sorting by credits_used", () => {
 		it("should sort ascending", () => {
 			const sortOrder: SortEntry[] = [
-				{ column: "credits_used", direction: "asc" },
+				{ column: "credits_used", direction: SortDirectionEnum.ASC },
 			];
 			const result = sortUsageData(mockData, sortOrder, originalIndices);
 			expect(result.map((d) => d.credits_used)).toEqual([10, 20, 30, 40, 50]);
@@ -55,7 +56,7 @@ describe("sortUsageData", () => {
 
 		it("should sort descending", () => {
 			const sortOrder: SortEntry[] = [
-				{ column: "credits_used", direction: "desc" },
+				{ column: "credits_used", direction: SortDirectionEnum.DESC },
 			];
 			const result = sortUsageData(mockData, sortOrder, originalIndices);
 			expect(result.map((d) => d.credits_used)).toEqual([50, 40, 30, 20, 10]);
@@ -65,7 +66,7 @@ describe("sortUsageData", () => {
 	describe("sorting by report_name", () => {
 		it("should sort ascending with empty names at the end", () => {
 			const sortOrder: SortEntry[] = [
-				{ column: "report_name", direction: "asc" },
+				{ column: "report_name", direction: SortDirectionEnum.ASC },
 			];
 			const result = sortUsageData(mockData, sortOrder, originalIndices);
 			// Report A, Report B, Report C, then empty names
@@ -80,7 +81,7 @@ describe("sortUsageData", () => {
 
 		it("should sort descending with empty names at the end", () => {
 			const sortOrder: SortEntry[] = [
-				{ column: "report_name", direction: "desc" },
+				{ column: "report_name", direction: SortDirectionEnum.DESC },
 			];
 			const result = sortUsageData(mockData, sortOrder, originalIndices);
 			// Report C, Report B, Report A, then empty names
@@ -133,8 +134,8 @@ describe("sortUsageData", () => {
 
 			// Sort by report_name asc, then credits_used asc
 			const sortOrder: SortEntry[] = [
-				{ column: "report_name", direction: "asc" },
-				{ column: "credits_used", direction: "asc" },
+				{ column: "report_name", direction: SortDirectionEnum.ASC },
+				{ column: "credits_used", direction: SortDirectionEnum.ASC },
 			];
 
 			const result = sortUsageData(dataWithDuplicates, sortOrder, indices);
@@ -180,8 +181,8 @@ describe("sortUsageData", () => {
 
 			// Sort by credits_used asc first, then report_name asc
 			const sortOrder: SortEntry[] = [
-				{ column: "credits_used", direction: "asc" },
-				{ column: "report_name", direction: "asc" },
+				{ column: "credits_used", direction: SortDirectionEnum.ASC },
+				{ column: "report_name", direction: SortDirectionEnum.ASC },
 			];
 
 			const result = sortUsageData(dataWithDuplicates, sortOrder, indices);
@@ -206,7 +207,7 @@ describe("sortUsageData", () => {
 			]);
 
 			const sortOrder: SortEntry[] = [
-				{ column: "credits_used", direction: "asc" },
+				{ column: "credits_used", direction: SortDirectionEnum.ASC },
 			];
 			const result = sortUsageData(dataWithEqualCredits, sortOrder, indices);
 
