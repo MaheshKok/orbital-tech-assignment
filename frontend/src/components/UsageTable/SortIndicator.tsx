@@ -5,7 +5,7 @@
 
 import { Icon, Badge, HStack } from "@chakra-ui/react";
 import { ChevronUpIcon, ChevronDownIcon, UpDownIcon } from "@chakra-ui/icons";
-import type { SortDirection } from "../../types/usage"
+import type { SortDirection } from "../../types/usage";
 
 interface SortIndicatorProps {
 	direction: SortDirection;
@@ -36,7 +36,7 @@ export function SortIndicator({ direction, priority }: SortIndicatorProps) {
 			{direction === null && (
 				<Icon as={UpDownIcon} w={3} h={3} color="gray.400" />
 			)}
-			{priority !== null && priority !== undefined && (
+			{priority != null && (
 				<Badge
 					ml={1}
 					colorScheme="blue"	

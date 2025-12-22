@@ -36,6 +36,10 @@ export const UsageResponseSchema = z.object({
 	usage: z.array(UsageItemSchema),
 });
 
-// Infer types from schemas for type safety
-export type UsageItemFromSchema = z.infer<typeof UsageItemSchema>;
-export type UsageResponseFromSchema = z.infer<typeof UsageResponseSchema>;
+// Infer types from schemas for type safety (single source of truth)
+export type UsageItem = z.infer<typeof UsageItemSchema>;
+export type UsageResponse = z.infer<typeof UsageResponseSchema>;
+
+// Backwards-compatible aliases
+export type UsageItemFromSchema = UsageItem;
+export type UsageResponseFromSchema = UsageResponse;

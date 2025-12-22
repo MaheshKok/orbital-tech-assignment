@@ -7,8 +7,8 @@
 
 // Re-export API types from schemas (Zod-inferred = single source of truth)
 export type {
-	UsageItemFromSchema as UsageItem,
-	UsageResponseFromSchema as UsageResponse,
+	UsageItem,
+	UsageResponse,
 } from "../schemas/usage";
 
 // UI-specific types (not from API)
@@ -18,7 +18,7 @@ export type SortableColumn = "report_name" | "credits_used";
 
 export interface SortEntry {
 	column: SortableColumn;
-	direction: "asc" | "desc";
+	direction: Exclude<SortDirection, null>;
 }
 
 export interface ChartDataPoint {
