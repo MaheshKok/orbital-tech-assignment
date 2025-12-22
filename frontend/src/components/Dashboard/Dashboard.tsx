@@ -39,7 +39,7 @@ export function Dashboard() {
 
 	const usage = data?.usage;
 
-	// Transform data for chart
+	// Transform data for chart (only if data is available)
 	const chartData = useMemo(() => {
 		if (!usage) return [];
 		return transformToChartData(usage);
