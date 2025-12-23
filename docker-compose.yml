@@ -1,114 +1,21 @@
-# Orbital Usage Dashboard - Docker Compose Configuration
-# Multi-container setup with React frontend, FastAPI backend, and PostgreSQL database
-
 services:
-  # ============================================
-  # PostgreSQL Database Service
-  # ============================================
-  db:
-    image: postgres:16-alpine
-    container_name: orbital_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-orbital_usage}
-      PGDATA: /var/lib/postgresql/data/pgdata
-    volumes:
-      # Persist database data
-      - postgres_data:/var/lib/postgresql/data
-      # Optional: initialization scripts
-      - ./backend/init-db:/docker-entrypoint-initdb.d:ro
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-orbital_usage}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - orbital_network
-
-  # ============================================
-  # FastAPI Backend Service
-  # ============================================
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: orbital_backend
-    restart: unless-stopped
-    environment:
-      # Application environment
-      APP_ENV: ${APP_ENV:-production}
-      # Database connection
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-orbital_usage}
-      DATABASE_HOST: db
-      DATABASE_PORT: 5432
-      DATABASE_NAME: ${POSTGRES_DB:-orbital_usage}
-      DATABASE_USER: ${POSTGRES_USER:-postgres}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      # Server configuration
-      SERVER_HOST: 0.0.0.0
-      SERVER_PORT: 8000
-      # Logging
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    build: ./backend
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - "8000:8000"
     networks:
-      - orbital_network
-    # volumes:
-    #   # Mount for development (optional, uncomment for live reload)
-    #   - ./backend:/app:ro
+      - app
 
-  # ============================================
-  # React Frontend Service
-  # ============================================
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        # Backend API URL for the frontend to use
-        VITE_API_URL: ""
-    container_name: orbital_frontend
-    restart: unless-stopped
+    build: ./frontend
     ports:
-      - "${FRONTEND_PORT:-3000}:80"
+      - "5173:5173"
+    environment:
+      - BACKEND_URL=http://backend:8000
     depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
+      - backend
     networks:
-      - orbital_network
+      - app
 
-# ============================================
-# Networks
-# ============================================
 networks:
-  orbital_network:
-    driver: bridge
-    name: orbital_network
-
-# ============================================
-# Volumes
-# ============================================
-volumes:
-  postgres_data:
-    driver: local
-    name: orbital_postgres_data
+  app:
