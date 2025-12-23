@@ -41,3 +41,6 @@ venv/
 CLAUDE.md
 
 .vscode/
+
+# Production documentation (keep local only)
+PRODUCTION.md
