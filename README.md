@@ -18,6 +18,11 @@ docker-compose up --build
 
 ---
 
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+
 ## Table of Contents
 
 1. [High-Level Architecture](#high-level-architecture)
