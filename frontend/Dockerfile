@@ -5,13 +5,45 @@
 # ============================================
 # Build Stage
 # ============================================
-FROM node:20-alpine AS builder
+FROM node:22.12-bookworm-slim AS builder
 
 WORKDIR /app
 
+# Install Bun (used for dependency installation)
+RUN npm i -g bun@1.1.45
+
 # Install dependencies first (for better caching)
 COPY package*.json ./
-RUN npm ci
+RUN bun install --no-save
+
+# Bun doesn't currently install Rollup's platform-native optional dependency.
+# Ensure the correct `@rollup/rollup-linux-*` package is present for Vite/Rollup.
+RUN node - <<'NODE'
+const fs = require("fs");
+const { execSync } = require("child_process");
+
+if (process.platform !== "linux") process.exit(0);
+
+const rollupPkg = JSON.parse(
+	fs.readFileSync("node_modules/rollup/package.json", "utf8")
+);
+const rollupVersion = rollupPkg.version;
+
+const archMap = { x64: "x64", arm64: "arm64" };
+const arch = archMap[process.arch];
+if (!arch) process.exit(0);
+
+let isMusl = false;
+try {
+	const out = execSync("ldd --version 2>&1 || true", { encoding: "utf8" });
+	isMusl = out.toLowerCase().includes("musl");
+} catch {}
+
+const libc = isMusl ? "musl" : "gnu";
+const pkg = `@rollup/rollup-linux-${arch}-${libc}`;
+
+execSync(`bun add --no-save ${pkg}@${rollupVersion}`, { stdio: "inherit" });
+NODE
 
 # Copy source code
 COPY . .
