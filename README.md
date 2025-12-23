@@ -23,6 +23,28 @@ docker-compose up --build
 ![alt text](image-1.png)
 
 
+### Key Design Decisions
+
+1. **No nginx** - Vite preview server handles everything (simpler setup)
+2. **Vite proxy** - API requests to `/usage` and `/health` are proxied to backend
+3. **Simple ports** - 5173 for frontend (Vite default), 8000 for backend
+4. **uv for backend** - Much faster than pip for dependency installation
+5. **bun for frontend** - Faster than npm/yarn for JavaScript
+
+---
+
+## Project Status: COMPLETE ✅
+
+All phases have been implemented and tested:
+
+- ✅ Backend API with FastAPI, async/await, credit calculation
+- ✅ Frontend dashboard with React, Chakra UI, charts, and tables
+- ✅ Multi-column sorting with URL state persistence
+- ✅ Docker deployment (simplified, no nginx)
+- ✅ Comprehensive documentation (READMEs, tokenization notes)
+- ✅ Unit tests (Jest) and E2E tests (Cypress)
+
+
 ## Table of Contents
 
 1. [High-Level Architecture](#high-level-architecture)
@@ -773,157 +795,6 @@ function formatTimestamp(iso: string): string {
 ---
 
 
----
-
-## Production & Scalability
-
-For production deployment strategies, scalability considerations, and database architecture, see **[PRODUCTION.md](./PRODUCTION.md)**.
-
-This includes:
-- Database schema and migration strategies
-- Horizontal scaling approaches
-- Caching strategies (Redis, PostgreSQL)
-- Multi-tenant support
-- Real-time updates with WebSockets
-- Monitoring and observability
-- Cost optimization
-
----
-
-## Implementation Phases
-
-### Phase 1: Backend Core ✅
-
-1. ✅ Set up FastAPI project structure
-2. ✅ Implement external API client with async + lifespan management
-3. ✅ Implement credit calculator with tests (both text and report paths)
-4. ✅ Create /usage endpoint with Pydantic models + exclude_none
-5. ✅ Add in-memory report caching with batch fetching
-6. ✅ Test with real external APIs
-
-### Phase 2: Frontend Core ✅
-
-1. ✅ Set up Vite + React + TypeScript
-2. ✅ Implement API client with TanStack Query
-3. ✅ Build UsageTable component with UTC formatting
-4. ✅ Implement tri-state sorting with precedence tracking
-5. ✅ Add URL state synchronization (ordered sort params)
-6. ✅ Build bar chart with Recharts (UTC date bucketing)
-7. ✅ Integrated Chakra UI for component library and theming
-
-### Phase 3: Polish & Documentation ✅
-
-1. ✅ Styling with Chakra UI (switched from Tailwind)
-2. ✅ Loading and error states
-3. ✅ README with run instructions (frontend + backend)
-4. ✅ Document decisions and trade-offs
-5. ✅ Answer reflection questions (see TOKENIZATION_NOTES.md)
-6. ✅ Final testing end-to-end
-7. ✅ Unit tests with Jest
-8. ✅ E2E tests with Cypress
-
-### Phase 4: Docker & Deployment ✅
-
-1. ✅ Simple Dockerfile for backend (uv-based)
-2. ✅ Simple Dockerfile for frontend (Bun + Vite preview)
-3. ✅ Docker Compose for full stack (no nginx)
-4. ✅ Updated documentation with Docker instructions
-
-**Implementation Notes:**
-- Removed nginx entirely - frontend uses Vite preview server
-- Backend uses `uv` for fast dependency management
-- Frontend uses `bun` for fast builds
-- Simple docker-compose.yml with just frontend + backend services
-
----
-
-## Reflection Questions - Prepared Answers
-
-### 1. Why approximate 1 token ≈ 4 characters?
-
-**Answer:** This is a rough heuristic based on how GPT tokenizers work. The OpenAI/Anthropic tokenizers use BPE (Byte Pair Encoding) where common words become single tokens, but rare words get split. On average, for English text, ~4 characters ≈ 1 token works reasonably well.
-
-**Breakdown for Legal Language:**
-
-- Legal text often has long, formal words ("indemnification", "notwithstanding")
-- Latin phrases ("inter alia", "pro rata") tokenize inefficiently
-- Heavy use of punctuation and formatting
-- This means legal text likely uses **more tokens per character** than average
-- Our approximation would **undercharge** lawyers, potentially losing revenue
-
-### 2. Different models (GPT-3.5 vs GPT-4) implications?
-
-**Answer:** Would need model-specific rates:
-
-```python
-MODEL_RATES = {
-    "gpt-3.5-turbo": 20,   # Cheaper
-    "gpt-4": 60,           # More expensive
-    "gpt-4-turbo": 40,     # Middle ground
-    "claude-3-opus": 75,   # Premium
-}
-
-def calculate_credits(text: str, model: str) -> float:
-    rate = MODEL_RATES.get(model, 40)
-    tokens = len(text) / 4
-    return max(1.0, round((tokens / 100) * rate, 2))
-```
-
-### 3. Improving token estimation in production?
-
-**Answer:** Use the actual tokenizer library:
-
-```python
-import tiktoken
-
-encoder = tiktoken.encoding_for_model("gpt-4")
-
-def count_tokens_exact(text: str) -> int:
-    return len(encoder.encode(text))
-```
-
-For Anthropic: Use their tokenizer or API response metadata which includes actual token counts.
-
-### 4. Caching/batching strategies for slow LLM API?
-
-**Answer:**
-
-- **Write-through cache:** Store token counts when response is received
-- **Batch processing:** Queue messages, process in batches during off-peak
-- **Predictive caching:** Pre-calculate for common report types
-- **TTL-based invalidation:** Cache for 24h, messages don't change
-
-### 5. Normalizing token billing for fairness?
-
-**Answer:**
-
-- **Intent-based pricing:** Simple questions (1x), complex analysis (1.5x), reports (fixed)
-- **Confidence discounts:** If AI is uncertain, charge less
-- **Subscription tiers:** Heavy users get volume discounts
-- **Cap per query:** Maximum charge regardless of length
-
-### 6. Explaining cost differences to lawyers?
-
-**Answer:** Show in UI:
-
-- Token count (or character count)
-- Whether it was a report (fixed price) or question (variable)
-- Breakdown: "120 tokens × $0.40/100 = $0.48, rounded to $1.00 minimum"
-- Comparison to similar queries
-
-**UI Tooltip Example:**
-
-```
-Credit Calculation:
-├─ Message length: 156 characters
-├─ Estimated tokens: 39
-├─ Rate: 40 credits per 100 tokens
-├─ Calculated: 15.60 credits
-└─ Final: 15.60 credits
-```
-
----
-
 ## Deployment
 
 ### Current Docker Setup (Simplified)
@@ -967,72 +838,4 @@ services:
 
 networks:
   app:
-```
-
-### Running the Application
-
-```bash
-# Start both services
-docker-compose up --build
-
-# Access the application
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
-
-### Key Design Decisions
-
-1. **No nginx** - Vite preview server handles everything (simpler setup)
-2. **Vite proxy** - API requests to `/usage` and `/health` are proxied to backend
-3. **Simple ports** - 5173 for frontend (Vite default), 8000 for backend
-4. **uv for backend** - Much faster than pip for dependency installation
-5. **bun for frontend** - Faster than npm/yarn for JavaScript
-
----
-
-## Project Status: COMPLETE ✅
-
-All phases have been implemented and tested:
-
-- ✅ Backend API with FastAPI, async/await, credit calculation
-- ✅ Frontend dashboard with React, Chakra UI, charts, and tables
-- ✅ Multi-column sorting with URL state persistence
-- ✅ Docker deployment (simplified, no nginx)
-- ✅ Comprehensive documentation (READMEs, planning, tokenization notes)
-- ✅ Unit tests (Jest) and E2E tests (Cypress)
-
-### Files Created
-
-```
-orbital-ai-assignment/
-├── backend/
-│   ├── app/
-│   │   ├── create_app.py
-│   │   ├── routes/
-│   │   ├── models/
-│   │   ├── schemas/
-│   │   ├── utils/
-│   │   └── db/
-│   ├── main.py
-│   ├── pyproject.toml
-│   ├── uv.lock
-│   ├── Dockerfile
-│   ├── README.md
-│   └── TOKENIZATION_NOTES.md
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── utils/
-│   │   ├── types/
-│   │   ├── api/
-│   │   ├── schemas/
-│   │   └── theme/
-│   ├── cypress/
-│   ├── package.json
-│   ├── Dockerfile
-│   └── README.md
-├── docker-compose.yml
-└── PLANNING.md (this document)
 ```
