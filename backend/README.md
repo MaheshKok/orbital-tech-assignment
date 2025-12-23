@@ -1,257 +1,296 @@
-## Reflection Questions - Prepared Answers
+# Orbital Usage API - Backend
 
-### 1. Why approximate 1 token ≈ 4 characters?
+FastAPI-based REST API for tracking AI credit usage with PostgreSQL persistence.
 
-**Answer:** This is a rough heuristic based on how modern LLM tokenizers work. The OpenAI/Anthropic tokenizers use **BPE (Byte Pair Encoding)** where common words become single tokens, but rare words get split into subwords. On average, for English text, ~4 characters ≈ 1 token works reasonably well as a practical approximation.
+## Tech Stack
 
----
+| Category         | Technology      | Version | Purpose                        |
+| ---------------- | --------------- | ------- | ------------------------------ |
+| Framework        | FastAPI         | 0.109.1 | Async web framework            |
+| Server           | Uvicorn         | 0.22.0  | ASGI server                    |
+| Database         | PostgreSQL      | Latest  | Data persistence               |
+| ORM              | SQLAlchemy      | 2.x     | Database abstraction           |
+| Migrations       | Alembic         | 1.11+   | Schema versioning              |
+| Validation       | Pydantic        | 2.x     | Request/response validation    |
+| HTTP Client      | HTTPX           | 0.24+   | Async HTTP requests            |
+| Package Manager  | uv              | Latest  | Fast Python package management |
 
-## Deep Dive: Understanding Tokenization
-
-### What is Tokenization?
-
-Tokenization is the process of converting raw text into smaller units called **tokens** that language models can process. Think of it as breaking text into digestible pieces that the model understands—not quite words, not quite characters, but something in between.
-
-### How BPE (Byte Pair Encoding) Works
-
-BPE is the algorithm used by GPT, Claude, and most modern LLMs. Here's the step-by-step process:
-
-**Step 1: Start with Characters**
-Initially, every character is its own token:
+## Project Structure
 
 ```
-"hello" → ['h', 'e', 'l', 'l', 'o']  (5 tokens)
+backend/
+├── app/
+│   ├── create_app.py          # FastAPI application factory
+│   ├── routes/
+│   │   └── usage.py           # Usage endpoint handlers
+│   ├── models/
+│   │   └── usage.py           # SQLAlchemy models
+│   ├── schemas/
+│   │   └── usage.py           # Pydantic schemas
+│   ├── utils/
+│   │   ├── constants.py       # Configuration enums
+│   │   └── credits.py         # Credit calculation logic
+│   └── db/
+│       └── session.py         # Database session management
+├── main.py                    # Application entry point
+├── pyproject.toml             # Dependencies and project config
+├── uv.lock                    # Locked dependencies
+└── tests/                     # Test suite
 ```
 
-**Step 2: Learn Common Pairs**
-The algorithm scans a massive training corpus (billions of documents) and finds the most frequent adjacent pairs, then merges them:
+## API Endpoints
 
-```
-Iteration 1: 'h' + 'e' → 'he'     (found this pair 12M times)
-Iteration 2: 'l' + 'l' → 'll'     (found this pair 8M times)
-Iteration 3: 'he' + 'll' → 'hell' (found this pair 4M times)
-Iteration 4: 'hell' + 'o' → 'hello' (found this pair 3M times)
-```
+### `GET /usage`
 
-After training on a massive corpus, `"hello"` becomes a **single token** because it appears so frequently!
+Returns all usage records with credits calculated based on message length.
 
-**Step 3: Build a Vocabulary**
-This iterative merging process repeats thousands of times, building a vocabulary of ~50,000-100,000 tokens that includes:
+**Response:**
 
-- **Single characters:** `a`, `b`, `!`, `空`, `😀`
-- **Subwords:** `ing`, `tion`, `pre`, `able`
-- **Common words:** `the`, `hello`, `function`, `import`
-- **Word + space combinations:** `the`, `and`, `is`
-- **Common phrases:** `import`, `return`, `class`
-
----
-
-### Why ~4 Characters Per Token? The Math Behind It
-
-| Text Type           | Example                                           | Characters | Tokens | Chars/Token |
-| ------------------- | ------------------------------------------------- | ---------- | ------ | ----------- |
-| **Common English**  | `"the cat sat"`                                   | 11         | 3      | **3.7**     |
-| **Code (Python)**   | `"function hello()"`                              | 16         | 5      | **3.2**     |
-| **Technical words** | `"implementation"`                                | 14         | 2      | **7.0**     |
-| **Rare words**      | `"Pneumonoultramicroscopicsilicovolcanoconiosis"` | 45         | 15     | **3.0**     |
-| **Numbers**         | `"1234567890"`                                    | 10         | 5      | **2.0**     |
-| **Mixed content**   | `"Hello, World! 123"`                             | 17         | 5      | **3.4**     |
-| **Average**         | —                                                 | —          | —      | **~4.0** ✅ |
-
-### Why It Averages to ~4:
-
-1. **Common English words** (like "the", "and", "is") are single tokens but vary in length
-2. **Punctuation and spaces** are often merged with adjacent text, improving efficiency
-3. **Rare/technical words** get split into multiple subword tokens, reducing efficiency
-4. **Non-English text** often gets split into more tokens (significantly less efficient)
-5. **Statistical balance:** The gains from common words offset the losses from rare words
-
----
-
-### Real-World Examples with GPT Tokenizer
-
-```
-Example 1: Common English
-"Hello world"
-├── "Hello" → 1 token
-├── " world" → 1 token
-└── Total: 2 tokens for 11 characters (5.5 chars/token) ✅
-
-Example 2: Technical term
-"cryptocurrency"
-├── "crypt" → 1 token
-├── "ocurrency" → 1 token
-└── Total: 2 tokens for 14 characters (7.0 chars/token) ✅
-
-Example 3: Non-Latin characters
-"Björk"
-├── "Bj" → 1 token
-├── "ö" → 1 token
-├── "rk" → 1 token
-└── Total: 3 tokens for 5 characters (1.7 chars/token) ❌
-
-Example 4: Asian languages
-"日本語" (Japanese: "Japanese language")
-├── "日" → 2 tokens
-├── "本" → 2 tokens
-├── "語" → 2 tokens
-└── Total: ~6 tokens for 3 characters (0.5 chars/token) ❌
-
-Example 5: Code
-"def calculate_credits(text: str):"
-├── "def" → 1 token
-├── " calculate" → 1 token
-├── "_" → 1 token
-├── "credits" → 1 token
-├── "(" → 1 token
-├── "text" → 1 token
-├── ":" → 1 token
-├── " str" → 1 token
-├── "):" → 1 token
-└── Total: 9 tokens for 34 characters (3.8 chars/token) ✅
-```
-
----
-
-### Key Factors Affecting Token Efficiency
-
-| Factor                | Effect on Chars/Token | Why?                                |
-| --------------------- | --------------------- | ----------------------------------- |
-| **English text**      | ~4-5 chars/token ✅   | Well-represented in training data   |
-| **Common words**      | Very efficient        | "the", "and" are single tokens      |
-| **Code**              | ~3-4 chars/token      | Special characters count separately |
-| **Numbers**           | ~2 chars/token        | Each digit or pair is a token       |
-| **Non-Latin scripts** | <2 chars/token ❌     | Under-represented in training       |
-| **Rare words**        | ~2-3 chars/token      | Split into multiple subwords        |
-| **Emojis**            | 1-2 per emoji         | Each emoji is typically 1-2 tokens  |
-
----
-
-### Breakdown for Legal Language (Domain-Specific Analysis)
-
-Legal text has unique characteristics that affect tokenization:
-
-- **Long, formal words:** "indemnification" (7 chars/token), "notwithstanding" (8 chars/token)
-- **Latin phrases:** "inter alia", "pro rata", "ex post facto" tokenize less efficiently
-- **Heavy punctuation:** Commas, semicolons, parentheses often create separate tokens
-- **Repetitive clauses:** "hereinafter referred to as", "subject to the terms"
-- **Case citations:** "Smith v. Jones, 123 F.3d 456 (2d Cir. 2020)" has many tokens
-
-**Impact on our system:**
-
-- Legal text likely uses **more tokens per character** than general English (≈3-3.5 chars/token)
-- Our 4 chars/token approximation would **underestimate** actual token usage
-- This means we would **undercharge** lawyers by ~10-15%, potentially losing revenue
-- **Solution:** Consider using 3.5 chars/token for legal domain, or implement actual tokenizer
-
----
-
-### Why This Matters for Our Project
-
-In our usage tracking system, using `len(text) / 4` gives a **reasonable estimate** without calling the actual tokenizer API. This is a practical tradeoff:
-
-**Pros:**
-
-```python
-# Fast approximation (what we're doing)
-estimated_tokens = len(text) / 4
-# ✅ No external dependencies
-# ✅ Instant calculation (no API calls)
-# ✅ Deterministic and cacheable
-# ✅ Good enough for billing estimates
-```
-
-**Cons vs. Accurate Tokenization:**
-
-```python
-# Accurate but slower
-import tiktoken
-encoder = tiktoken.get_encoding("cl100k_base")
-actual_tokens = len(encoder.encode(text))
-# ❌ Requires tiktoken library
-# ❌ ~100x slower than simple division
-# ❌ Memory overhead for encoder
-# ✅ Exact token count
-```
-
-**Production Recommendation:**
-For billing/tracking purposes, the approximation is usually good enough, and many production systems use this heuristic! However, for critical billing, consider:
-
-1. Using actual tokenizer for transactions >$10
-2. Periodically auditing approximation accuracy
-3. Adjusting the ratio based on your specific domain (legal = 3.5, code = 3.0, general = 4.0)
-
----
-
-### 2. Different models (GPT-3.5 vs GPT-4) implications?
-
-**Answer:** Would need model-specific rates:
-
-```python
-MODEL_RATES = {
-    "gpt-3.5-turbo": 20,   # Cheaper
-    "gpt-4": 60,           # More expensive
-    "gpt-4-turbo": 40,     # Middle ground
-    "claude-3-opus": 75,   # Premium
+```json
+{
+  "usage": [
+    {
+      "message_id": 1,
+      "timestamp": "2024-01-15T14:30:00Z",
+      "report_name": "Contract Analysis",
+      "credits_used": 15.6
+    },
+    {
+      "message_id": 2,
+      "timestamp": "2024-01-15T15:45:00Z",
+      "credits_used": 8.2
+    }
+  ]
 }
-
-def calculate_credits(text: str, model: str) -> float:
-    rate = MODEL_RATES.get(model, 40)
-    tokens = len(text) / 4
-    return max(1.0, round((tokens / 100) * rate, 2))
 ```
 
-### 3. Improving token estimation in production?
+**Notes:**
+- `report_name` is optional (omitted for non-report messages)
+- `credits_used` always has 2 decimal places
+- Timestamps are ISO 8601 format
 
-**Answer:** Use the actual tokenizer library:
+### `GET /health`
+
+Health check endpoint for monitoring.
+
+**Response:**
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2024-01-15T16:00:00Z"
+}
+```
+
+## Credit Calculation
+
+Credits are calculated using a token approximation:
 
 ```python
-import tiktoken
+# Approximate 1 token ≈ 4 characters
+tokens = len(message_text) / 4
 
-encoder = tiktoken.encoding_for_model("gpt-4")
+# Rate: 40 credits per 100 tokens
+credits = (tokens / 100) * 40
 
-def count_tokens_exact(text: str) -> int:
-    return len(encoder.encode(text))
+# Minimum charge: 1.0 credit
+credits = max(1.0, round(credits, 2))
 ```
 
-For Anthropic: Use their tokenizer or API response metadata which includes actual token counts.
+**Examples:**
 
-### 4. Caching/batching strategies for slow LLM API?
+| Message Length | Tokens (approx) | Credits |
+| -------------- | --------------- | ------- |
+| 50 chars       | 12.5            | 5.00    |
+| 100 chars      | 25              | 10.00   |
+| 500 chars      | 125             | 50.00   |
 
-**Answer:**
+## Getting Started
 
-- **Write-through cache:** Store token counts when response is received
-- **Batch processing:** Queue messages, process in batches during off-peak
-- **Predictive caching:** Pre-calculate for common report types
-- **TTL-based invalidation:** Cache for 24h, messages don't change
+### Prerequisites
 
-### 5. Normalizing token billing for fairness?
+- Python 3.10-3.12
+- PostgreSQL (for production)
+- uv package manager (recommended)
 
-**Answer:**
+### Installation
 
-- **Intent-based pricing:** Simple questions (1x), complex analysis (1.5x), reports (fixed)
-- **Confidence discounts:** If AI is uncertain, charge less
-- **Subscription tiers:** Heavy users get volume discounts
-- **Cap per query:** Maximum charge regardless of length
+```bash
+# Install dependencies with uv
+uv sync
 
-### 6. Explaining cost differences to lawyers?
-
-**Answer:** Show in UI:
-
-- Token count (or character count)
-- Whether it was a report (fixed price) or question (variable)
-- Breakdown: "120 tokens × $0.40/100 = $0.48, rounded to $1.00 minimum"
-- Comparison to similar queries
-
-**UI Tooltip Example:**
-
-```
-Credit Calculation:
-├─ Message length: 156 characters
-├─ Estimated tokens: 39
-├─ Rate: 40 credits per 100 tokens
-├─ Calculated: 15.60 credits
-└─ Final: 15.60 credits
+# Or with pip
+pip install -e .
 ```
 
----
+### Running Locally
+
+```bash
+# Development mode with hot-reload
+uv run uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Or using the main.py script
+uv run python main.py
+```
+
+The API will be available at `http://localhost:8000`.
+
+### Environment Variables
+
+| Variable         | Default                                      | Description          |
+| ---------------- | -------------------------------------------- | -------------------- |
+| `DATABASE_URL`   | `postgresql://user:pass@localhost/orbital`  | PostgreSQL connection string |
+| `CONFIG_ENV`     | `development`                                | Config environment   |
+
+### Database Setup
+
+```bash
+# Run migrations
+uv run alembic upgrade head
+
+# Create a new migration
+uv run alembic revision --autogenerate -m "description"
+```
+
+## Docker Support
+
+### Building and Running
+
+```bash
+# Build the image
+docker build -t backend .
+
+# Run the container
+docker run -p 8000:8000 -e DATABASE_URL=postgresql://... backend
+```
+
+### Using Docker Compose
+
+```bash
+# Start both frontend and backend
+docker-compose up --build
+
+# Backend: http://localhost:8000
+# API docs: http://localhost:8000/docs
+```
+
+The Dockerfile uses `uv` for fast dependency installation.
+
+## API Documentation
+
+FastAPI provides automatic interactive API documentation:
+
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+## Testing
+
+```bash
+# Run tests
+uv run pytest
+
+# With coverage
+uv run pytest --cov=app
+
+# Run specific test
+uv run pytest tests/test_usage.py
+```
+
+## Code Quality
+
+### Linting
+
+```bash
+# Ruff (fast linter)
+uv run ruff check .
+
+# Fix issues automatically
+uv run ruff check --fix .
+
+# Flake8 (additional checks)
+uv run flake8 app/
+```
+
+### Formatting
+
+The project uses Ruff for formatting with these settings:
+
+- Line length: 120 characters
+- Target Python: 3.10+
+- Import sorting: isort-compatible
+
+## Development Workflow
+
+1. **Make changes** to the code
+2. **Run linter**: `uv run ruff check .`
+3. **Run tests**: `uv run pytest`
+4. **Test locally**: `uv run python main.py`
+5. **Build Docker**: `docker build -t backend .`
+
+## Configuration
+
+The app supports multiple configuration files via `ConfigFile` enum:
+
+```python
+# app/utils/constants.py
+class ConfigFile(str, Enum):
+    DEVELOPMENT = "development"
+    PRODUCTION = "production"
+    TEST = "test"
+
+# main.py
+app = get_app(ConfigFile.DEVELOPMENT)
+```
+
+Configuration files are loaded from `config/` directory.
+
+## Performance Considerations
+
+- **Async handlers**: All routes use `async def` for non-blocking I/O
+- **Connection pooling**: SQLAlchemy manages database connections
+- **Response caching**: Consider adding Redis for `/usage` endpoint
+- **Token estimation**: Uses simple division (fast) vs actual tokenizer (accurate but slow)
+
+## Production Recommendations
+
+1. **Use actual tokenizer**: Replace `/4` approximation with `tiktoken` library
+2. **Add caching**: Cache `/usage` responses for 1-5 minutes
+3. **Database indexing**: Add indexes on `timestamp` for faster queries
+4. **Rate limiting**: Add rate limiting middleware
+5. **Monitoring**: Integrate with logging/monitoring service
+
+## Troubleshooting
+
+### Port already in use
+
+```bash
+# Find process on port 8000
+lsof -i :8000
+
+# Kill it
+kill -9 <PID>
+```
+
+### Database connection issues
+
+```bash
+# Check PostgreSQL is running
+pg_isready
+
+# Verify connection string
+echo $DATABASE_URL
+```
+
+### Import errors
+
+```bash
+# Reinstall dependencies
+uv sync --refresh
+
+# Clear Python cache
+find . -type d -name __pycache__ -exec rm -rf {} +
+```
+
+## Additional Documentation
+
+For detailed information about tokenization and credit calculation, see [TOKENIZATION_NOTES.md](./TOKENIZATION_NOTES.md).

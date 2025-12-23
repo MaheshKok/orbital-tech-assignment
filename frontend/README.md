@@ -610,21 +610,29 @@ manualChunks: {
 
 ## Docker Support
 
-### Development
+The frontend is containerized with a simple Dockerfile using Vite preview server.
+
+### Building and Running
 
 ```bash
-docker build -f Dockerfile.dev -t frontend-dev .
-docker run -p 5173:5173 frontend-dev
-```
-
-### Production
-
-```bash
+# Build the Docker image
 docker build -t frontend .
-docker run -p 80:80 frontend
+
+# Run the container
+docker run -p 5173:5173 -e BACKEND_URL=http://localhost:8000 frontend
 ```
 
-Production build uses nginx for serving static files.
+### Using Docker Compose
+
+```bash
+# Start both frontend and backend
+docker-compose up --build
+
+# Frontend: http://localhost:5173
+# Backend: http://localhost:8000
+```
+
+The Vite preview server handles both static file serving and API proxying to the backend.
 
 ## Theming
 
