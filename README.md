@@ -15,7 +15,7 @@ cd frontend && npm install && npm run dev
 
 | Service  | URL                        |
 | -------- | -------------------------- |
-| Frontend | http://localhost:3000      |
+| Frontend | http://localhost:5173      |
 | Backend  | http://localhost:8000      |
 | API Docs | http://localhost:8000/docs |
 
