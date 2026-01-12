@@ -38,11 +38,11 @@ docker-compose up --build
 All phases have been implemented and tested:
 
 - ✅ Backend API with FastAPI, async/await, credit calculation
-- ✅ Frontend dashboard with React, Chakra UI, charts, and tables
-- ✅ Multi-column sorting with URL state persistence
+- ✅ Frontend dashboard with React 19, Chakra UI v3, charts, and tables
+- ✅ Multi-column sorting with URL state persistence (TanStack React Table)
 - ✅ Docker deployment (simplified, no nginx)
 - ✅ Comprehensive documentation (READMEs, tokenization notes)
-- ✅ Unit tests (Jest) and E2E tests (Cypress)
+- ✅ Unit tests (Vitest + React Testing Library) and E2E tests (Cypress)
 
 
 ## Table of Contents
@@ -316,60 +316,137 @@ def get_credits_for_message(message: dict, report: dict | None) -> float:
 
 ### Framework & Libraries
 
-| Purpose           | Library                      | Rationale                                |
-| ----------------- | ---------------------------- | ---------------------------------------- |
-| Framework         | React 19 + TypeScript        | Latest stable version                    |
-| Build Tool        | Vite 7                       | Fast dev server, modern defaults         |
-| Routing/URL State | React Router v7              | Industry standard, search params support |
-| Data Fetching     | TanStack Query v5            | Caching, loading states, error handling  |
-| Charts            | Recharts v3                  | React-native, declarative, good docs     |
-| Styling           | Chakra UI v2                 | Component library with theming support   |
-| Table             | Custom implementation        | Full control over sorting logic          |
+| Purpose           | Library                      | Rationale                                   |
+| ----------------- | ---------------------------- | ------------------------------------------- |
+| Framework         | React 19 + TypeScript        | Latest stable version                       |
+| Build Tool        | Vite 7 (rolldown-vite)       | Fast dev server, modern defaults            |
+| Routing/URL State | React Router v7              | Industry standard, search params support    |
+| Data Fetching     | TanStack Query v5            | Caching, loading states, error handling     |
+| Table             | TanStack React Table v8      | Powerful headless table with sorting        |
+| Charts            | Recharts v3                  | React-native, declarative, good docs        |
+| Styling           | Chakra UI v3                 | Modern component library with design system |
+| Icons             | React Icons                  | Feather icons (FiCreditCard, etc.)          |
 | Package Manager   | Bun                          | Fast JavaScript runtime and package manager |
+| Testing           | Vitest + React Testing Library | Fast, Vite-native testing framework      |
 
 ### Project Structure
 
 ```
 frontend/
 ├── src/
-│   ├── main.tsx
-│   ├── App.tsx
-│   ├── api/
-│   │   ├── client.ts           # Axios/fetch setup
-│   │   └── usage.ts            # API hooks (useUsageData)
+│   ├── main.tsx               # App entry point with providers
+│   ├── App.tsx                # Main app component with layout
+│   ├── App.css                # Global styles
+│   ├── index.css              # Root CSS
 │   ├── components/
-│   │   ├── Dashboard/
-│   │   │   ├── Dashboard.tsx   # Main container
-│   │   │   └── index.ts
-│   │   ├── UsageChart/
-│   │   │   ├── UsageChart.tsx  # Bar chart component
-│   │   │   └── index.ts
-│   │   ├── UsageTable/
-│   │   │   ├── UsageTable.tsx  # Data table component
-│   │   │   ├── TableHeader.tsx # Sortable header
-│   │   │   ├── TableRow.tsx
-│   │   │   └── index.ts
-│   │   └── ui/
-│   │       ├── LoadingSpinner.tsx
-│   │       └── ErrorMessage.tsx
+│   │   ├── UsageOverview/
+│   │   │   ├── index.tsx      # Overview section with stats & chart
+│   │   │   └── index.test.tsx # Unit tests (8 tests)
+│   │   └── ActivityLog/
+│   │       ├── index.tsx      # Data table with multi-column sorting
+│   │       └── index.test.tsx # Unit tests (9 tests)
 │   ├── hooks/
-│   │   ├── useUrlSortState.ts  # URL-synced sorting
-│   │   └── useMultiSort.ts     # Multi-column sort logic
-│   ├── utils/
-│   │   ├── dateFormatters.ts   # DD-MM-YYYY HH:mm
-│   │   ├── sortUtils.ts        # Sorting functions
-│   │   └── chartDataTransform.ts
-│   ├── types/
-│   │   └── usage.ts            # TypeScript interfaces
-│   └── constants/
-│       └── index.ts
-├── public/
-├── index.html
+│   │   └── useUsage.tsx       # TanStack Query hook for API data
+│   ├── test/
+│   │   └── setup.tsx          # Test utilities with providers
+│   └── assets/
+├── vitest.config.ts           # Test configuration
+├── vite.config.ts             # Build configuration
 ├── package.json
 ├── tsconfig.json
-├── tailwind.config.js
-└── vite.config.ts
+└── Dockerfile
 ```
+
+### Component Architecture
+
+#### UsageOverview Component
+
+The `UsageOverview` component displays:
+- **Summary Stats Cards**: Total Credits, Messages Processed, Reports Generated
+- **Daily Usage Trends Chart**: Bar chart showing credit consumption over time
+
+Key features:
+- `StatCard` helper component with icon, value, and optional subtext
+- `aggregateUsageByDate()` utility for chart data transformation
+- Custom tooltip with formatted credit values (2 decimal places)
+- Responsive grid layout for stat cards
+
+```tsx
+// Summary calculations
+const totalCredits = usage.usage.reduce((sum, item) => sum + item.credits_used, 0);
+const totalMessages = usage.usage.length;
+const uniqueReports = new Set(usage.usage.map(item => item.report_name).filter(Boolean)).size;
+```
+
+#### ActivityLog Component
+
+The `ActivityLog` component displays a sortable data table with:
+- **MESSAGE ID**: Badge-styled identifier
+- **TIMESTAMP**: Formatted as `DD-MM-YYYY HH:mm`
+- **REPORT NAME**: Sortable, displays "N/A" if missing
+- **CREDITS USED**: Sortable, formatted with 2 decimal places
+
+Key features:
+- **TanStack React Table**: Headless table library for full control
+- **Multi-column sorting**: Click columns to add to sort order
+- **URL state persistence**: Sort state synced to URL search params
+- **Chakra UI v3 Table**: Uses `Table.Root`, `Table.Header`, `Table.Body`, etc.
+
+```tsx
+// URL-synced sorting with TanStack Table
+const table = useReactTable({
+  data: usage.usage,
+  columns,
+  state: { sorting },
+  onSortingChange: handleSortingChange,
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  enableMultiSort: true,
+  isMultiSortEvent: () => true,
+});
+```
+
+### Data Fetching Hook
+
+The `useUsage` hook uses TanStack Query for data fetching:
+
+```tsx
+// hooks/useUsage.tsx
+export function useUsage() {
+  return useQuery<IUsageResponse, Error>({
+    queryKey: ["usage"],
+    queryFn: fetchUsage,
+  });
+}
+
+// Configurable backend URL via environment variable
+function getBackendUrl(): string {
+  const envUrl = import.meta.env.VITE_BACKEND_URL;
+  if (!envUrl) return "http://localhost:8000";
+  return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
+}
+```
+
+### Testing
+
+The frontend uses **Vitest** with **React Testing Library** for component testing.
+
+**Run tests:**
+```bash
+bun run test          # Watch mode
+bun run test --run    # Single run
+bun run test:coverage # With coverage report
+```
+
+**Test coverage:**
+- `UsageOverview`: 8 tests (headings, stat cards, chart rendering)
+- `ActivityLog`: 9 tests (table headers, data rows, sorting, empty state)
+
+**Test setup (`src/test/setup.tsx`):**
+- Custom `render()` function with `ChakraProvider` and `MemoryRouter`
+- Jest-DOM matchers for extended assertions
+- Mocked Recharts and Chakra Table components for jsdom compatibility
+
 
 ### Key Implementation Details
 
@@ -698,10 +775,11 @@ export function formatTimestamp(iso: string): string {
 | --------------------- | ------------------------------ | ----------------------------------------------------------- |
 | **Vite**              | Create React App, Next.js      | Fast, modern, no SSR needed                                 |
 | **TanStack Query**    | SWR, plain fetch               | Built-in caching, loading states, refetch logic             |
+| **TanStack Table**    | AG Grid, custom implementation | Headless, full control, built-in multi-sort support         |
 | **Recharts**          | Chart.js, D3, Nivo             | React-native, simple API, good for bar charts               |
-| **Custom table**      | AG Grid, TanStack Table        | Full control over tri-state sorting, simpler for this scope |
-| **Chakra UI**         | Tailwind CSS, styled-components| Component library with theming, accessibility built-in      |
+| **Chakra UI v3**      | Tailwind CSS, styled-components| Modern design system, accessibility built-in                |
 | **Bun**               | npm, pnpm, yarn                | Fastest JavaScript runtime and package manager              |
+| **Vitest**            | Jest, Mocha                    | Vite-native, faster, same API as Jest                       |
 | **URL search params** | Context, Redux                 | Shareable URLs requirement, simpler state management        |
 
 ### Critical Implementation Decisions

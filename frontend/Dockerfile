@@ -2,8 +2,8 @@ FROM oven/bun:1.1.45-slim
 
 WORKDIR /app
 
-# Install unzip (needed by Cypress during install)
-RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
+# # Install unzip (needed by Cypress during install)
+# RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package.json bun.lockb* ./

@@ -1,0 +1,324 @@
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
+import type { IUsageResponse } from "../../hooks/useUsage";
+import {
+	useReactTable,
+	getCoreRowModel,
+	getSortedRowModel,
+	flexRender,
+	type ColumnDef,
+	type SortingState,
+	type Updater,
+} from "@tanstack/react-table";
+import { Box, Heading, Badge, Text, Flex, Icon } from "@chakra-ui/react";
+import { Table } from "@chakra-ui/react/table";
+import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface UsageItem {
+	message_id: number;
+	timestamp: string;
+	report_name?: string;
+	credits_used: number;
+}
+
+interface SortIconProps {
+	sortState: false | "asc" | "desc";
+	index: number;
+}
+
+interface ActivityLogProps {
+	usage: IUsageResponse;
+}
+
+// ============================================================================
+// Helper Components
+// ============================================================================
+
+function SortIcon({ sortState, index }: SortIconProps) {
+	return (
+		<Flex
+			as="span"
+			ml={2}
+			align="center"
+			color="blue.500"
+			fontSize="xs"
+			fontWeight="bold"
+		>
+			{sortState === "asc" && <Icon as={FaSortUp} mr={1} />}
+			{sortState === "desc" && <Icon as={FaSortDown} mr={1} />}
+			{sortState && index}
+			{!sortState && <Icon as={FaSort} color="gray.300" />}
+		</Flex>
+	);
+}
+
+// ============================================================================
+// URL Parsing Utilities
+// ============================================================================
+
+function parseSortingFromParams(searchParams: URLSearchParams): SortingState {
+	const sortParam = searchParams.get("sort");
+	if (!sortParam) {
+		return [];
+	}
+
+	try {
+		return sortParam.split(",").map((item) => {
+			const [id, direction] = item.split(":");
+			return { id, desc: direction === "desc" };
+		});
+	} catch {
+		return [];
+	}
+}
+
+function serializeSortingToParams(sorting: SortingState): string {
+	if (sorting.length === 0) return "";
+	return sorting.map((s) => `${s.id}:${s.desc ? "desc" : "asc"}`).join(",");
+}
+
+// ============================================================================
+// Date Formatting
+// ============================================================================
+
+function formatTimestamp(isoString: string): string {
+	const date = new Date(isoString);
+	const day = date.getDate().toString().padStart(2, "0");
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const year = date.getFullYear();
+	const hours = date.getHours().toString().padStart(2, "0");
+	const minutes = date.getMinutes().toString().padStart(2, "0");
+	return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+export default function ActivityLog({ usage }: ActivityLogProps) {
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	const sorting = useMemo(
+		(): SortingState => parseSortingFromParams(searchParams),
+		[searchParams]
+	);
+
+	const handleSortingChange = (updaterOrValue: Updater<SortingState>) => {
+		const newSorting =
+			typeof updaterOrValue === "function"
+				? updaterOrValue(sorting)
+				: updaterOrValue;
+
+		const sortString = serializeSortingToParams(newSorting);
+		setSearchParams((prev) => {
+			const newParams = new URLSearchParams(prev);
+			if (sortString) {
+				newParams.set("sort", sortString);
+			} else {
+				newParams.delete("sort");
+			}
+			return newParams;
+		});
+	};
+
+	const columns = useMemo<ColumnDef<UsageItem>[]>(
+		() => [
+			{
+				accessorKey: "message_id",
+				header: "MESSAGE ID",
+				enableSorting: false,
+				cell: (info) => (
+					<Badge
+						bg="gray.50"
+						color="gray.500"
+						px={2}
+						py={1}
+						borderRadius="md"
+						textTransform="none"
+						fontSize="sm"
+						fontWeight="normal"
+					>
+						#{info.getValue<number>()}
+					</Badge>
+				),
+			},
+			{
+				accessorKey: "timestamp",
+				header: "TIMESTAMP",
+				enableSorting: false,
+				cell: (info) => (
+					<Text color="#111827" fontWeight="medium" fontSize="sm">
+						{formatTimestamp(info.getValue<string>())}
+					</Text>
+				),
+			},
+			{
+				accessorKey: "report_name",
+				header: ({ column }) => {
+					const sortIndex =
+						sorting.findIndex((s) => s.id === column.id) + 1;
+					return (
+						<Flex
+							align="center"
+							cursor="pointer"
+							onClick={column.getToggleSortingHandler()}
+						>
+							REPORT NAME
+							<SortIcon
+								sortState={column.getIsSorted()}
+								index={sortIndex}
+							/>
+						</Flex>
+					);
+				},
+				enableSorting: true,
+				cell: (info) => (
+					<Badge
+						bg="#eff0ff"
+						color="#4338ca"
+						px={3}
+						py={1}
+						borderRadius="full"
+						textTransform="none"
+						fontSize="xs"
+						fontWeight="medium"
+					>
+						{info.getValue<string>() || "N/A"}
+					</Badge>
+				),
+			},
+			{
+				accessorKey: "credits_used",
+				header: ({ column }) => {
+					const sortIndex =
+						sorting.findIndex((s) => s.id === column.id) + 1;
+					return (
+						<Flex
+							align="center"
+							cursor="pointer"
+							onClick={column.getToggleSortingHandler()}
+						>
+							CREDITS USED
+							<SortIcon
+								sortState={column.getIsSorted()}
+								index={sortIndex}
+							/>
+						</Flex>
+					);
+				},
+				enableSorting: true,
+				cell: (info) => (
+					<Text color="#3730a3" fontWeight="bold" fontSize="sm">
+						{info.getValue<number>().toFixed(2)}{" "}
+						<Text
+							as="span"
+							fontWeight="normal"
+							color="gray.500"
+							fontSize="xs"
+						>
+							credits
+						</Text>
+					</Text>
+				),
+			},
+		],
+		[sorting]
+	);
+
+	// eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table handles its own memoization
+	const table = useReactTable({
+		data: usage.usage,
+		columns,
+		state: { sorting },
+		onSortingChange: handleSortingChange,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		enableMultiSort: true,
+		isMultiSortEvent: () => true,
+	});
+
+	return (
+		<Box>
+			<Heading size="md" mb={6} color="#111827">
+				Detailed Activity Log
+			</Heading>
+			<Box
+				bg="white"
+				borderRadius="3xl"
+				boxShadow="xl"
+				overflow="hidden"
+				p={8}
+			>
+				<Box overflowX="auto">
+					<Table.Root variant="outline" size="md">
+						<Table.Header bg="gray.50">
+							{table.getHeaderGroups().map((headerGroup) => (
+								<Table.Row key={headerGroup.id}>
+									{headerGroup.headers.map((header) => (
+										<Table.ColumnHeader
+											key={header.id}
+											borderBottomWidth="1px"
+											borderColor="gray.100"
+											color="gray.400"
+											fontSize="xs"
+											fontWeight="bold"
+											letterSpacing="wider"
+											py={4}
+										>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef
+															.header,
+														header.getContext()
+													)}
+										</Table.ColumnHeader>
+									))}
+								</Table.Row>
+							))}
+						</Table.Header>
+						<Table.Body>
+							{table.getRowModel().rows.length === 0 ? (
+								<Table.Row>
+									<Table.Cell
+										colSpan={columns.length}
+										textAlign="center"
+										color="gray.500"
+										py={10}
+									>
+										No usage data available
+									</Table.Cell>
+								</Table.Row>
+							) : (
+								table.getRowModel().rows.map((row) => (
+									<Table.Row
+										key={row.id}
+										_hover={{ bg: "gray.50" }}
+									>
+										{row.getVisibleCells().map((cell) => (
+											<Table.Cell
+												key={cell.id}
+												borderBottomWidth="1px"
+												borderColor="gray.50"
+												py={4}
+											>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext()
+												)}
+											</Table.Cell>
+										))}
+									</Table.Row>
+								))
+							)}
+						</Table.Body>
+					</Table.Root>
+				</Box>
+			</Box>
+		</Box>
+	);
+}
