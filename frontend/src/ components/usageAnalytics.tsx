@@ -8,10 +8,9 @@ import {
 	CartesianGrid,
 	Tooltip,
 	ResponsiveContainer,
-	Legend,
 } from "recharts";
-import { Box, Heading, Text } from "@chakra-ui/react";
-
+import { Box, Heading, Text, SimpleGrid, Flex, Icon } from "@chakra-ui/react";
+import { FiCreditCard, FiMessageSquare, FiFileText } from "react-icons/fi";
 
 // Interface for aggregated data by date
 interface DailyUsage {
@@ -46,140 +45,216 @@ export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
 		return result;
 	}, [usage]);
 
-	// Format date for display (e.g., "Jan 12" instead of "2026-01-12")
+	// Calculate totals
+	const totalCredits = usage.usage.reduce(
+		(sum, item) => sum + item.credits_used,
+		0
+	);
+	const totalMessages = usage.usage.length;
+	// Count unique reports (if report_name exists)
+	const uniqueReports = new Set(
+		usage.usage.map((item) => item.report_name).filter(Boolean)
+	).size;
+
+	// Format date for display
 	const formatDate = (dateStr: string) => {
 		const date = new Date(dateStr);
-		return date.toLocaleDateString("en-US", {
-			month: "short",
-			day: "numeric",
-		});
+		// Returns "29-04" format as seen in image
+		const day = date.getDate().toString().padStart(2, "0");
+		const month = (date.getMonth() + 1).toString().padStart(2, "0");
+		return `${day}-${month}`;
 	};
 
-	return (
+	const StatCard = ({
+		title,
+		value,
+		subtext,
+		icon,
+		iconColor,
+		iconBg,
+	}: any) => (
 		<Box
 			p={6}
-			borderRadius="lg"
-			border="1px solid"
-			borderColor="gray.700"
-			bg="gray.900"
-			mb={6}
+			bg="white"
+			borderRadius="xl"
+			borderWidth="1px"
+			borderColor="gray.100"
+			boxShadow="sm"
 		>
-			<Heading size="lg" mb={2} color="white">
-				📊 Usage Analytics
-			</Heading>
-			<Text color="gray.400" mb={6}>
-				Credits used per day
-            </Text>
-            
-            {/* Summary Stats */}
-			<Box
-				display="flex"
-				gap={6}
-				mt={6}
-				flexWrap="wrap"
-				justifyContent="center"
-			>
-				<Box textAlign="center" p={4} bg="gray.800" borderRadius="md">
-					<Text color="gray.400" fontSize="sm">
-						Total Credits
+			<Flex justify="space-between" align="start">
+				<Box>
+					<Text fontSize="sm" color="gray.500" mb={1}>
+						{title}
 					</Text>
-					<Text color="purple.400" fontSize="2xl" fontWeight="bold">
-						{dailyData.reduce((sum, d) => sum + d.credits_used, 0)}
-					</Text>
+					<Heading size="xl" mb={1}>
+						{typeof value === "number" && !Number.isInteger(value)
+							? value.toFixed(2)
+							: value}
+					</Heading>
+					{subtext && (
+						<Text fontSize="xs" color="gray.400">
+							{subtext}
+						</Text>
+					)}
 				</Box>
-				<Box textAlign="center" p={4} bg="gray.800" borderRadius="md">
-					<Text color="gray.400" fontSize="sm">
-						Days Tracked
-					</Text>
-					<Text color="blue.400" fontSize="2xl" fontWeight="bold">
-						{dailyData.length}
-					</Text>
-				</Box>
-				<Box textAlign="center" p={4} bg="gray.800" borderRadius="md">
-					<Text color="gray.400" fontSize="sm">
-						Avg Credits/Day
-					</Text>
-					<Text color="green.400" fontSize="2xl" fontWeight="bold">
-						{dailyData.length > 0
-							? Math.round(
-									dailyData.reduce(
-										(sum, d) => sum + d.credits_used,
-										0
-									) / dailyData.length
-								)
-							: 0}
-					</Text>
-				</Box>
+				<Flex
+					align="center"
+					justify="center"
+					w={10}
+					h={10}
+					borderRadius="lg"
+					bg={iconBg}
+					color={iconColor}
+				>
+					<Icon as={icon} boxSize={5} />
+				</Flex>
+			</Flex>
+		</Box>
+	);
+
+	return (
+		<Box mb={8}>
+			{/* Overview Section */}
+			<Box mb={8}>
+				<Heading size="lg" mb={2} color="#4338ca">
+					Overview
+				</Heading>
+				<Text color="gray.500" mb={6}>
+					Track your AI credit consumption and activity metrics.
+				</Text>
+
+				<SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
+					<StatCard
+						title="Total Credits Used"
+						value={totalCredits}
+						icon={FiCreditCard}
+						iconColor="#4338ca"
+						iconBg="#e0e7ff"
+					/>
+					<StatCard
+						title="Messages Processed"
+						value={totalMessages}
+						subtext="Active interactions"
+						icon={FiMessageSquare}
+						iconColor="#4338ca"
+						iconBg="#e0e7ff"
+					/>
+					<StatCard
+						title="Reports Generated"
+						value={uniqueReports}
+						subtext="Document analysis"
+						icon={FiFileText}
+						iconColor="#4338ca"
+						iconBg="#e0e7ff"
+					/>
+				</SimpleGrid>
 			</Box>
 
-			{dailyData.length === 0 ? (
-				<Text color="gray.500" textAlign="center" py={10}>
-					No usage data available
-				</Text>
-			) : (
-				<Box height="400px" width="100%">
+			{/* Daily Usage Trends Section */}
+			<Box
+				p={6}
+				borderRadius="xl"
+				borderWidth="1px"
+				borderColor="gray.200"
+				bg="white"
+				className="usage-chart-container"
+			>
+				<Flex justify="space-between" align="center" mb={6}>
+					<Box>
+						<Heading size="md" mb={1}>
+							Daily Usage Trends
+						</Heading>
+						<Text fontSize="sm" color="gray.500">
+							Analysis of credit consumption over time
+						</Text>
+					</Box>
+					<Box
+						bg="#374151"
+						color="white"
+						px={3}
+						py={1}
+						borderRadius="md"
+						fontSize="xs"
+						fontWeight="medium"
+					>
+						Last 30 Days
+					</Box>
+				</Flex>
+
+				<Box height="300px" width="100%">
 					<ResponsiveContainer width="100%" height="100%">
 						<BarChart
 							data={dailyData}
 							margin={{
 								top: 20,
-								right: 30,
-								left: 20,
-								bottom: 60,
+								right: 0,
+								left: -20,
+								bottom: 0,
 							}}
+							barSize={32}
 						>
 							<CartesianGrid
+								vertical={false}
 								strokeDasharray="3 3"
-								stroke="#374151"
+								stroke="#f3f4f6"
 							/>
 							<XAxis
 								dataKey="date"
 								tickFormatter={formatDate}
-								stroke="#9CA3AF"
-								angle={-45}
-								textAnchor="end"
-								height={60}
-								tick={{ fill: "#9CA3AF", fontSize: 12 }}
+								stroke="#9ca3af"
+								axisLine={false}
+								tickLine={false}
+								tick={{ fill: "#6b7280", fontSize: 12 }}
+								dy={10}
 							/>
 							<YAxis
-								stroke="#9CA3AF"
-								tick={{ fill: "#9CA3AF", fontSize: 12 }}
-								label={{
-									value: "Credits Used",
-									angle: -90,
-									position: "insideLeft",
-									fill: "#9CA3AF",
-								}}
+								stroke="#9ca3af"
+								axisLine={false}
+								tickLine={false}
+								tick={{ fill: "#6b7280", fontSize: 12 }}
 							/>
 							<Tooltip
-								contentStyle={{
-									backgroundColor: "#1F2937",
-									border: "1px solid #374151",
-									borderRadius: "8px",
-									color: "#F9FAFB",
+								cursor={{ fill: "transparent" }}
+								content={({ active, payload, label }) => {
+									if (active && payload && payload.length) {
+										return (
+											<Box
+												bg="white"
+												p={3}
+												borderRadius="lg"
+												boxShadow="lg"
+												border="1px solid"
+												borderColor="gray.100"
+											>
+												<Text fontSize="xs" color="gray.500" mb={1}>
+													{formatDate(label)}
+												</Text>
+												<Text fontWeight="bold" fontSize="lg" color="#111827">
+													{payload[0].value}{" "}
+													<Text
+														as="span"
+														fontSize="xs"
+														fontWeight="normal"
+														color="gray.500"
+													>
+														credits
+													</Text>
+												</Text>
+											</Box>
+										);
+									}
+									return null;
 								}}
-								labelFormatter={formatDate}
-								formatter={(value: number) => [
-									`${value} credits`,
-									"Usage",
-								]}
-							/>
-							<Legend
-								wrapperStyle={{ color: "#9CA3AF" }}
-								formatter={() => "Credits Used"}
 							/>
 							<Bar
 								dataKey="credits_used"
-								fill="#8B5CF6"
-								radius={[4, 4, 0, 0]}
-								name="Credits"
+								fill="#6366f1"
+								radius={[4, 4, 4, 4]}
 							/>
 						</BarChart>
 					</ResponsiveContainer>
 				</Box>
-			)}
-
-			
+			</Box>
 		</Box>
 	);
 }
