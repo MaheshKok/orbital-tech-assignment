@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { IUsageResponse } from "../hooks/useUsage";
+import type { IconType } from "react-icons";
 import {
 	BarChart,
 	Bar,
@@ -16,6 +17,73 @@ import { FiCreditCard, FiMessageSquare, FiFileText } from "react-icons/fi";
 interface DailyUsage {
 	date: string;
 	credits_used: number;
+}
+
+// Props interface for StatCard component
+interface StatCardProps {
+	title: string;
+	value: number;
+	subtext?: string;
+	icon: IconType;
+	iconColor: string;
+	iconBg: string;
+}
+
+function StatCard({
+	title,
+	value,
+	subtext,
+	icon,
+	iconColor,
+	iconBg,
+}: StatCardProps) {
+	return (
+		<Box
+			p={6}
+			bg="white"
+			borderRadius="xl"
+			borderWidth="1px"
+			borderColor="gray.100"
+			boxShadow="sm"
+		>
+			<Flex justify="space-between" align="start">
+				<Box>
+					<Text fontSize="sm" color="gray.500" mb={1}>
+						{title}
+					</Text>
+					<Heading size="xl" mb={1}>
+						{typeof value === "number" && !Number.isInteger(value)
+							? value.toFixed(2)
+							: value}
+					</Heading>
+					{subtext && (
+						<Text fontSize="xs" color="gray.400">
+							{subtext}
+						</Text>
+					)}
+				</Box>
+				<Flex
+					align="center"
+					justify="center"
+					w={10}
+					h={10}
+					borderRadius="lg"
+					bg={iconBg}
+					color={iconColor}
+				>
+					<Icon as={icon} boxSize={5} />
+				</Flex>
+			</Flex>
+		</Box>
+	);
+}
+
+// Format date for display
+function formatDate(dateStr: string): string {
+	const date = new Date(dateStr);
+	const day = date.getDate().toString().padStart(2, "0");
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	return `${day}-${month}`;
 }
 
 export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
@@ -55,62 +123,6 @@ export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
 	const uniqueReports = new Set(
 		usage.usage.map((item) => item.report_name).filter(Boolean)
 	).size;
-
-	// Format date for display
-	const formatDate = (dateStr: string) => {
-		const date = new Date(dateStr);
-		// Returns "29-04" format as seen in image
-		const day = date.getDate().toString().padStart(2, "0");
-		const month = (date.getMonth() + 1).toString().padStart(2, "0");
-		return `${day}-${month}`;
-	};
-
-	const StatCard = ({
-		title,
-		value,
-		subtext,
-		icon,
-		iconColor,
-		iconBg,
-	}: any) => (
-		<Box
-			p={6}
-			bg="white"
-			borderRadius="xl"
-			borderWidth="1px"
-			borderColor="gray.100"
-			boxShadow="sm"
-		>
-			<Flex justify="space-between" align="start">
-				<Box>
-					<Text fontSize="sm" color="gray.500" mb={1}>
-						{title}
-					</Text>
-					<Heading size="xl" mb={1}>
-						{typeof value === "number" && !Number.isInteger(value)
-							? value.toFixed(2)
-							: value}
-					</Heading>
-					{subtext && (
-						<Text fontSize="xs" color="gray.400">
-							{subtext}
-						</Text>
-					)}
-				</Box>
-				<Flex
-					align="center"
-					justify="center"
-					w={10}
-					h={10}
-					borderRadius="lg"
-					bg={iconBg}
-					color={iconColor}
-				>
-					<Icon as={icon} boxSize={5} />
-				</Flex>
-			</Flex>
-		</Box>
-	);
 
 	return (
 		<Box mb={8}>
@@ -227,7 +239,7 @@ export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
 												borderColor="gray.100"
 											>
 												<Text fontSize="xs" color="gray.500" mb={1}>
-													{formatDate(label)}
+													{typeof label === "string" ? formatDate(label) : ""}
 												</Text>
 												<Text fontWeight="bold" fontSize="lg" color="#111827">
 													{payload[0].value}{" "}
