@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { IUsageResponse } from "../hooks/useUsage";
+import type { IUsageResponse } from "../../hooks/useUsage";
 import type { IconType } from "react-icons";
 import {
 	BarChart,
@@ -13,13 +13,15 @@ import {
 import { Box, Heading, Text, SimpleGrid, Flex, Icon } from "@chakra-ui/react";
 import { FiCreditCard, FiMessageSquare, FiFileText } from "react-icons/fi";
 
-// Interface for aggregated data by date
+// ============================================================================
+// Types
+// ============================================================================
+
 interface DailyUsage {
 	date: string;
 	credits_used: number;
 }
 
-// Props interface for StatCard component
 interface StatCardProps {
 	title: string;
 	value: number;
@@ -28,6 +30,14 @@ interface StatCardProps {
 	iconColor: string;
 	iconBg: string;
 }
+
+interface UsageOverviewProps {
+	usage: IUsageResponse;
+}
+
+// ============================================================================
+// Helper Components
+// ============================================================================
 
 function StatCard({
 	title,
@@ -78,7 +88,10 @@ function StatCard({
 	);
 }
 
-// Format date for display
+// ============================================================================
+// Utilities
+// ============================================================================
+
 function formatDate(dateStr: string): string {
 	const date = new Date(dateStr);
 	const day = date.getDate().toString().padStart(2, "0");
@@ -86,47 +99,41 @@ function formatDate(dateStr: string): string {
 	return `${day}-${month}`;
 }
 
-export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
-	// Aggregate credits by date (strip time from timestamp)
-	const dailyData = useMemo(() => {
-		const aggregated: Record<string, number> = {};
+function aggregateUsageByDate(usage: IUsageResponse): DailyUsage[] {
+	const aggregated: Record<string, number> = {};
 
-		usage.usage.forEach((item) => {
-			// Extract date only (YYYY-MM-DD) from timestamp
-			const date = item.timestamp.split("T")[0];
+	usage.usage.forEach((item) => {
+		const date = item.timestamp.split("T")[0];
+		aggregated[date] = (aggregated[date] || 0) + item.credits_used;
+	});
 
-			if (aggregated[date]) {
-				aggregated[date] += item.credits_used;
-			} else {
-				aggregated[date] = item.credits_used;
-			}
-		});
+	return Object.entries(aggregated)
+		.map(([date, credits_used]) => ({ date, credits_used }))
+		.sort((a, b) => a.date.localeCompare(b.date));
+}
 
-		// Convert to array and sort by date
-		const result: DailyUsage[] = Object.entries(aggregated)
-			.map(([date, credits_used]) => ({
-				date,
-				credits_used,
-			}))
-			.sort((a, b) => a.date.localeCompare(b.date));
+// ============================================================================
+// Main Component
+// ============================================================================
 
-		return result;
-	}, [usage]);
+export default function UsageOverview({ usage }: UsageOverviewProps) {
+	const dailyData = useMemo(
+		() => aggregateUsageByDate(usage),
+		[usage]
+	);
 
-	// Calculate totals
 	const totalCredits = usage.usage.reduce(
 		(sum, item) => sum + item.credits_used,
 		0
 	);
 	const totalMessages = usage.usage.length;
-	// Count unique reports (if report_name exists)
 	const uniqueReports = new Set(
 		usage.usage.map((item) => item.report_name).filter(Boolean)
 	).size;
 
 	return (
 		<Box mb={8}>
-			{/* Overview Section */}
+			{/* Summary Cards */}
 			<Box mb={8}>
 				<Heading size="lg" mb={2} color="#4338ca">
 					Overview
@@ -162,14 +169,13 @@ export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
 				</SimpleGrid>
 			</Box>
 
-			{/* Daily Usage Trends Section */}
+			{/* Usage Chart */}
 			<Box
 				p={6}
 				borderRadius="xl"
 				borderWidth="1px"
 				borderColor="gray.200"
 				bg="white"
-				className="usage-chart-container"
 			>
 				<Flex justify="space-between" align="center" mb={6}>
 					<Box>
@@ -197,12 +203,7 @@ export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
 					<ResponsiveContainer width="100%" height="100%">
 						<BarChart
 							data={dailyData}
-							margin={{
-								top: 20,
-								right: 0,
-								left: -20,
-								bottom: 0,
-							}}
+							margin={{ top: 20, right: 0, left: -20, bottom: 0 }}
 							barSize={32}
 						>
 							<CartesianGrid

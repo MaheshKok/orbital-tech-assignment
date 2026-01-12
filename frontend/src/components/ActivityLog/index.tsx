@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { type IUsageResponse } from "../hooks/useUsage";
+import type { IUsageResponse } from "../../hooks/useUsage";
 import {
 	useReactTable,
 	getCoreRowModel,
@@ -26,7 +26,10 @@ import {
 } from "@chakra-ui/react";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
-// Define the shape of each usage item
+// ============================================================================
+// Types
+// ============================================================================
+
 interface UsageItem {
 	message_id: number;
 	timestamp: string;
@@ -34,14 +37,20 @@ interface UsageItem {
 	credits_used: number;
 }
 
-// Custom sort icon component matching the design
-function SortIcon({
-	sortState,
-	index,
-}: {
+interface SortIconProps {
 	sortState: false | "asc" | "desc";
 	index: number;
-}) {
+}
+
+interface ActivityLogProps {
+	usage: IUsageResponse;
+}
+
+// ============================================================================
+// Helper Components
+// ============================================================================
+
+function SortIcon({ sortState, index }: SortIconProps) {
 	return (
 		<Flex
 			as="span"
@@ -59,7 +68,10 @@ function SortIcon({
 	);
 }
 
-// Parse sorting from URL search params
+// ============================================================================
+// URL Parsing Utilities
+// ============================================================================
+
 function parseSortingFromParams(searchParams: URLSearchParams): SortingState {
 	const sortParam = searchParams.get("sort");
 	if (!sortParam) {
@@ -67,7 +79,6 @@ function parseSortingFromParams(searchParams: URLSearchParams): SortingState {
 	}
 
 	try {
-		// Format: "report_name:asc,credits_used:desc"
 		return sortParam.split(",").map((item) => {
 			const [id, direction] = item.split(":");
 			return { id, desc: direction === "desc" };
@@ -77,28 +88,43 @@ function parseSortingFromParams(searchParams: URLSearchParams): SortingState {
 	}
 }
 
-// Serialize sorting state to URL string
 function serializeSortingToParams(sorting: SortingState): string {
 	if (sorting.length === 0) return "";
 	return sorting.map((s) => `${s.id}:${s.desc ? "desc" : "asc"}`).join(",");
 }
 
-export default function UsageTable({ usage }: { usage: IUsageResponse }) {
+// ============================================================================
+// Date Formatting
+// ============================================================================
+
+function formatTimestamp(isoString: string): string {
+	const date = new Date(isoString);
+	const day = date.getDate().toString().padStart(2, "0");
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const year = date.getFullYear();
+	const hours = date.getHours().toString().padStart(2, "0");
+	const minutes = date.getMinutes().toString().padStart(2, "0");
+	return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
+export default function ActivityLog({ usage }: ActivityLogProps) {
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	// Get current sorting from URL (empty if no sort param)
-	const sorting = useMemo((): SortingState => {
-		return parseSortingFromParams(searchParams);
-	}, [searchParams]);
+	const sorting = useMemo(
+		(): SortingState => parseSortingFromParams(searchParams),
+		[searchParams]
+	);
 
-	// Handle sorting change and update URL
 	const handleSortingChange = (updaterOrValue: Updater<SortingState>) => {
 		const newSorting =
 			typeof updaterOrValue === "function"
 				? updaterOrValue(sorting)
 				: updaterOrValue;
 
-		// Update URL with new sorting
 		const sortString = serializeSortingToParams(newSorting);
 		setSearchParams((prev) => {
 			const newParams = new URLSearchParams(prev);
@@ -136,25 +162,11 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 				accessorKey: "timestamp",
 				header: "TIMESTAMP",
 				enableSorting: false,
-				cell: (info) => {
-					const date = new Date(info.getValue<string>());
-					const day = date.getDate().toString().padStart(2, "0");
-					const month = (date.getMonth() + 1)
-						.toString()
-						.padStart(2, "0");
-					const year = date.getFullYear();
-					const hours = date.getHours().toString().padStart(2, "0");
-					const minutes = date
-						.getMinutes()
-						.toString()
-						.padStart(2, "0");
-
-					return (
-						<Text color="#111827" fontWeight="medium" fontSize="sm">
-							{`${day}-${month}-${year} ${hours}:${minutes}`}
-						</Text>
-					);
-				},
+				cell: (info) => (
+					<Text color="#111827" fontWeight="medium" fontSize="sm">
+						{formatTimestamp(info.getValue<string>())}
+					</Text>
+				),
 			},
 			{
 				accessorKey: "report_name",
@@ -232,9 +244,7 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 	const table = useReactTable({
 		data: usage.usage,
 		columns,
-		state: {
-			sorting,
-		},
+		state: { sorting },
 		onSortingChange: handleSortingChange,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
