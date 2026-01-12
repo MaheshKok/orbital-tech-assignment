@@ -10,20 +10,8 @@ import {
 	type SortingState,
 	type Updater,
 } from "@tanstack/react-table";
-import {
-	Box,
-	Heading,
-	Table,
-	Thead,
-	Tbody,
-	Tr,
-	Th,
-	Td,
-	Badge,
-	Text,
-	Flex,
-	Icon,
-} from "@chakra-ui/react";
+import { Box, Heading, Badge, Text, Flex, Icon } from "@chakra-ui/react";
+import { Table } from "@chakra-ui/react/table";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 // ============================================================================
@@ -273,12 +261,12 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 			</Heading>
 
 			<Box overflowX="auto">
-				<Table variant="simple" size="md">
-					<Thead>
+				<Table.Root variant="outline" size="md">
+					<Table.Header>
 						{table.getHeaderGroups().map((headerGroup) => (
-							<Tr key={headerGroup.id}>
+							<Table.Row key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
-									<Th
+									<Table.ColumnHeader
 										key={header.id}
 										borderBottomWidth="1px"
 										borderColor="gray.100"
@@ -295,28 +283,31 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 														.header,
 													header.getContext()
 												)}
-									</Th>
+									</Table.ColumnHeader>
 								))}
-							</Tr>
+							</Table.Row>
 						))}
-					</Thead>
-					<Tbody>
+					</Table.Header>
+					<Table.Body>
 						{table.getRowModel().rows.length === 0 ? (
-							<Tr>
-								<Td
+							<Table.Row>
+								<Table.Cell
 									colSpan={columns.length}
 									textAlign="center"
 									color="gray.500"
 									py={10}
 								>
 									No usage data available
-								</Td>
-							</Tr>
+								</Table.Cell>
+							</Table.Row>
 						) : (
 							table.getRowModel().rows.map((row) => (
-								<Tr key={row.id} _hover={{ bg: "gray.50" }}>
+								<Table.Row
+									key={row.id}
+									_hover={{ bg: "gray.50" }}
+								>
 									{row.getVisibleCells().map((cell) => (
-										<Td
+										<Table.Cell
 											key={cell.id}
 											borderBottomWidth="1px"
 											borderColor="gray.50"
@@ -326,13 +317,13 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 												cell.column.columnDef.cell,
 												cell.getContext()
 											)}
-										</Td>
+										</Table.Cell>
 									))}
-								</Tr>
+								</Table.Row>
 							))
 						)}
-					</Tbody>
-				</Table>
+					</Table.Body>
+				</Table.Root>
 			</Box>
 		</Box>
 	);
