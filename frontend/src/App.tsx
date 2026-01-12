@@ -5,7 +5,7 @@ import UsageOverview from "./components/UsageOverview";
 import ActivityLog from "./components/ActivityLog";
 
 function App() {
-	const { data: usage, isLoading, isError, refetch } = useUsage();
+	const { data: usage, isLoading, error, refetch } = useUsage();
 
 	if (isLoading) {
 		return (
@@ -16,10 +16,10 @@ function App() {
 		);
 	}
 
-	if (isError) {
+	if (error) {
 		return (
 			<Box textAlign="center" py={10}>
-				<Text color="red.500">Error: {isError}</Text>
+				<Text color="red.500">Error: {error.message}</Text>
 				<Button mt={4} onClick={() => refetch()}>
 					Retry
 				</Button>

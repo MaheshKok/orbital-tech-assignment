@@ -93,23 +93,46 @@ function StatCard({
 // ============================================================================
 
 function formatDate(dateStr: string): string {
-	const date = new Date(dateStr);
-	const day = date.getDate().toString().padStart(2, "0");
-	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const [year, month, day] = dateStr.split("-");
+	if (!year || !month || !day) return dateStr;
 	return `${day}-${month}`;
 }
 
 function aggregateUsageByDate(usage: IUsageResponse): DailyUsage[] {
+	if (usage.usage.length === 0) return [];
+
 	const aggregated: Record<string, number> = {};
+	let minDate: string | undefined;
+	let maxDate: string | undefined;
 
 	usage.usage.forEach((item) => {
 		const date = item.timestamp.split("T")[0];
 		aggregated[date] = (aggregated[date] || 0) + item.credits_used;
+		minDate = minDate ? (date < minDate ? date : minDate) : date;
+		maxDate = maxDate ? (date > maxDate ? date : maxDate) : date;
 	});
 
-	return Object.entries(aggregated)
-		.map(([date, credits_used]) => ({ date, credits_used }))
-		.sort((a, b) => a.date.localeCompare(b.date));
+	if (!minDate || !maxDate) return [];
+
+	const start = new Date(`${minDate}T00:00:00Z`);
+	const end = new Date(`${maxDate}T00:00:00Z`);
+	if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+		return Object.entries(aggregated)
+			.map(([date, credits_used]) => ({ date, credits_used }))
+			.sort((a, b) => a.date.localeCompare(b.date));
+	}
+
+	const daily: DailyUsage[] = [];
+	for (
+		const current = new Date(start);
+		current <= end;
+		current.setUTCDate(current.getUTCDate() + 1)
+	) {
+		const date = current.toISOString().slice(0, 10);
+		daily.push({ date, credits_used: aggregated[date] || 0 });
+	}
+
+	return daily;
 }
 
 // ============================================================================

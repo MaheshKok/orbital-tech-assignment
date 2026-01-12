@@ -169,7 +169,8 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 				),
 			},
 			{
-				accessorKey: "report_name",
+				id: "report_name",
+				accessorFn: (row) => row.report_name ?? "",
 				header: ({ column }) => {
 					const sortIndex =
 						sorting.findIndex((s) => s.id === column.id) + 1;
@@ -188,20 +189,24 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 					);
 				},
 				enableSorting: true,
-				cell: (info) => (
-					<Badge
-						bg="#eff0ff"
-						color="#4338ca"
-						px={3}
-						py={1}
-						borderRadius="full"
-						textTransform="none"
-						fontSize="xs"
-						fontWeight="medium"
-					>
-						{info.getValue<string>() || "N/A"}
-					</Badge>
-				),
+				cell: (info) => {
+					const reportName = info.getValue<string>();
+					if (!reportName) return null;
+					return (
+						<Badge
+							bg="#eff0ff"
+							color="#4338ca"
+							px={3}
+							py={1}
+							borderRadius="full"
+							textTransform="none"
+							fontSize="xs"
+							fontWeight="medium"
+						>
+							{reportName}
+						</Badge>
+					);
+				},
 			},
 			{
 				accessorKey: "credits_used",
