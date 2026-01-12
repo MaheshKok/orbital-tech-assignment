@@ -58,16 +58,16 @@ function StatCard({
 		>
 			<Flex justify="space-between" align="start">
 				<Box>
-					<Text fontSize="sm" color="gray.500" mb={1}>
+					<Text fontSize="sm" color="gray.500" fontWeight="medium" mb={1}>
 						{title}
 					</Text>
-					<Heading size="xl" mb={1}>
+					<Heading size="2xl" mb={1} mt={2} color="#111827">
 						{typeof value === "number" && !Number.isInteger(value)
 							? value.toFixed(2)
 							: value}
 					</Heading>
 					{subtext && (
-						<Text fontSize="xs" color="gray.400">
+						<Text fontSize="xs" color="gray.400" mt={1}>
 							{subtext}
 						</Text>
 					)}
@@ -75,13 +75,13 @@ function StatCard({
 				<Flex
 					align="center"
 					justify="center"
-					w={10}
-					h={10}
-					borderRadius="lg"
+					w={12}
+					h={12}
+					borderRadius="xl"
 					bg={iconBg}
 					color={iconColor}
 				>
-					<Icon as={icon} boxSize={5} />
+					<Icon as={icon} boxSize={6} />
 				</Flex>
 			</Flex>
 		</Box>
@@ -152,16 +152,19 @@ export default function UsageOverview({ usage }: UsageOverviewProps) {
 	).size;
 
 	return (
-		<Box mb={8}>
-			{/* Summary Cards */}
-			<Box mb={8}>
-				<Heading size="lg" mb={2} color="#4338ca">
+		<Box bg="white" p={8} borderRadius="3xl" boxShadow="xl" mb={8}>
+			{/* Header */}
+			<Box mb={8} textAlign="left">
+				<Heading size="lg" mb={2} color="#6366f1">
 					Overview
 				</Heading>
-				<Text color="gray.500" mb={6}>
+				<Text color="gray.500">
 					Track your AI credit consumption and activity metrics.
 				</Text>
+			</Box>
 
+			{/* Summary Cards */}
+			<Box mb={8}>
 				<SimpleGrid columns={{ base: 1, md: 3 }} gap={6}>
 					<StatCard
 						title="Total Credits Used"
@@ -207,7 +210,7 @@ export default function UsageOverview({ usage }: UsageOverviewProps) {
 						</Text>
 					</Box>
 					<Box
-						bg="#374151"
+						bg="#1f2937"
 						color="white"
 						px={3}
 						py={1}
@@ -258,6 +261,8 @@ export default function UsageOverview({ usage }: UsageOverviewProps) {
 												boxShadow="lg"
 												border="1px solid"
 												borderColor="gray.100"
+												position="relative"
+												zIndex={100}
 											>
 												<Text
 													fontSize="xs"
@@ -273,7 +278,12 @@ export default function UsageOverview({ usage }: UsageOverviewProps) {
 													fontSize="lg"
 													color="#111827"
 												>
-													{payload[0].value}{" "}
+													{typeof payload[0].value ===
+													"number"
+														? payload[0].value.toFixed(
+																2
+														  )
+														: payload[0].value}{" "}
 													<Text
 														as="span"
 														fontSize="xs"

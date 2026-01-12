@@ -10,8 +10,20 @@ import {
 	type SortingState,
 	type Updater,
 } from "@tanstack/react-table";
-import { Box, Heading, Badge, Text, Flex, Icon } from "@chakra-ui/react";
-import { Table } from "@chakra-ui/react/table";
+import {
+	Box,
+	Heading,
+	Table,
+	Thead,
+	Tbody,
+	Tr,
+	Th,
+	Td,
+	Badge,
+	Text,
+	Flex,
+	Icon,
+} from "@chakra-ui/react";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 
 // ============================================================================
@@ -157,8 +169,7 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 				),
 			},
 			{
-				id: "report_name",
-				accessorFn: (row) => row.report_name ?? "",
+				accessorKey: "report_name",
 				header: ({ column }) => {
 					const sortIndex =
 						sorting.findIndex((s) => s.id === column.id) + 1;
@@ -177,24 +188,20 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 					);
 				},
 				enableSorting: true,
-				cell: (info) => {
-					const reportName = info.getValue<string>();
-					if (!reportName) return null;
-					return (
-						<Badge
-							bg="#eff0ff"
-							color="#4338ca"
-							px={3}
-							py={1}
-							borderRadius="full"
-							textTransform="none"
-							fontSize="xs"
-							fontWeight="medium"
-						>
-							{reportName}
-						</Badge>
-					);
-				},
+				cell: (info) => (
+					<Badge
+						bg="#eff0ff"
+						color="#4338ca"
+						px={3}
+						py={1}
+						borderRadius="full"
+						textTransform="none"
+						fontSize="xs"
+						fontWeight="medium"
+					>
+						{info.getValue<string>() || "N/A"}
+					</Badge>
+				),
 			},
 			{
 				accessorKey: "credits_used",
@@ -249,24 +256,22 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 	return (
 		<Box
 			bg="white"
-			borderRadius="xl"
-			borderWidth="1px"
-			borderColor="gray.100"
-			boxShadow="sm"
+			borderRadius="3xl"
+			boxShadow="xl"
 			overflow="hidden"
-			p={6}
+			p={8}
 		>
 			<Heading size="md" mb={6} color="#111827">
 				Detailed Activity Log
 			</Heading>
 
 			<Box overflowX="auto">
-				<Table.Root variant="outline" size="md">
-					<Table.Header>
+				<Table variant="simple" size="md">
+					<Thead bg="gray.50">
 						{table.getHeaderGroups().map((headerGroup) => (
-							<Table.Row key={headerGroup.id}>
+							<Tr key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
-									<Table.ColumnHeader
+									<Th
 										key={header.id}
 										borderBottomWidth="1px"
 										borderColor="gray.100"
@@ -283,31 +288,28 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 														.header,
 													header.getContext()
 												)}
-									</Table.ColumnHeader>
+									</Th>
 								))}
-							</Table.Row>
+							</Tr>
 						))}
-					</Table.Header>
-					<Table.Body>
+					</Thead>
+					<Tbody>
 						{table.getRowModel().rows.length === 0 ? (
-							<Table.Row>
-								<Table.Cell
+							<Tr>
+								<Td
 									colSpan={columns.length}
 									textAlign="center"
 									color="gray.500"
 									py={10}
 								>
 									No usage data available
-								</Table.Cell>
-							</Table.Row>
+								</Td>
+							</Tr>
 						) : (
 							table.getRowModel().rows.map((row) => (
-								<Table.Row
-									key={row.id}
-									_hover={{ bg: "gray.50" }}
-								>
+								<Tr key={row.id} _hover={{ bg: "gray.50" }}>
 									{row.getVisibleCells().map((cell) => (
-										<Table.Cell
+										<Td
 											key={cell.id}
 											borderBottomWidth="1px"
 											borderColor="gray.50"
@@ -317,13 +319,13 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 												cell.column.columnDef.cell,
 												cell.getContext()
 											)}
-										</Table.Cell>
+										</Td>
 									))}
-								</Table.Row>
+								</Tr>
 							))
 						)}
-					</Table.Body>
-				</Table.Root>
+					</Tbody>
+				</Table>
 			</Box>
 		</Box>
 	);

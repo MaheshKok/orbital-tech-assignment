@@ -28,10 +28,12 @@ function App() {
 	}
 
 	return (
-		<>
-			{usage && <UsageOverview usage={usage} />}
-			{usage && <ActivityLog usage={usage} />}
-		</>
+		<Box minH="100vh" bg="gray.50" py={10} px={4}>
+			<Box maxW="7xl" mx="auto">
+				{usage && <UsageOverview usage={usage} />}
+				{usage && <ActivityLog usage={usage} />}
+			</Box>
+		</Box>
 	);
 }
 
