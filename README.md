@@ -1,14 +1,34 @@
 # Orbital Copilot - Usage Dashboard
 
-A full-stack application for tracking and visualizing AI credit usage. Built with React + TypeScript frontend and Python FastAPI backend.
+A simple dashboard to track AI credit usage. Built with React (frontend) and Python FastAPI (backend).
+
+---
 
 ## Quick Start
 
-```bash
-# Run with Docker Compose (recommended)
-docker-compose up --build
+### Option 1: Run with Docker (Recommended)
 
+```bash
+docker-compose up --build
 ```
+
+### Option 2: Run Locally
+
+**Backend:**
+```bash
+cd backend
+pip install -r requirements.txt
+python3 main.py
+```
+
+**Frontend:**
+```bash
+cd frontend
+bun install
+bun run dev
+```
+
+### Access the App
 
 | Service  | URL                        |
 | -------- | -------------------------- |
@@ -18,902 +38,196 @@ docker-compose up --build
 
 ---
 
+## Screenshots
+
 ![alt text](image-1.png)
 
 ![alt text](image-2.png)
 
+---
 
-### Key Design Decisions
+## What Does This App Do?
 
-1. **No nginx** - Vite preview server handles everything (simpler setup)
-2. **Vite proxy** - API requests to `/usage` and `/health` are proxied to backend
-3. **Simple ports** - 5173 for frontend (Vite default), 8000 for backend
-4. **uv for backend** - Much faster than pip for dependency installation
-5. **bun for frontend** - Faster than npm/yarn for JavaScript
+1. **Shows Usage Overview** - Total credits used, messages processed, and reports generated
+2. **Displays Daily Chart** - Bar chart showing credit usage per day
+3. **Activity Log Table** - Sortable table with all usage details
+4. **URL Sharing** - Sort settings are saved in the URL so you can share them
 
 ---
 
-## Project Status: COMPLETE ✅
+## Tech Stack
 
-All phases have been implemented and tested:
+### Backend (Python)
+- **FastAPI** - Fast web framework
+- **httpx** - For making API calls
+- **Pydantic** - Data validation
 
-- ✅ Backend API with FastAPI, async/await, credit calculation
-- ✅ Frontend dashboard with React 19, Chakra UI v3, charts, and tables
-- ✅ Multi-column sorting with URL state persistence (TanStack React Table)
-- ✅ Docker deployment (simplified, no nginx)
-- ✅ Comprehensive documentation (READMEs, tokenization notes)
-- ✅ Unit tests (Vitest + React Testing Library) and E2E tests (Cypress)
-
-
-## Table of Contents
-
-1. [High-Level Architecture](#high-level-architecture)
-2. [Backend Design](#backend-design)
-3. [Frontend Design](#frontend-design)
-4. [Trade-offs & Decisions](#trade-offs--decisions)
-5. [Production & Scalability](#production--scalability)
-6. [Implementation Phases](#implementation-phases)
-7. [Deployment](#deployment)
-8. [Project Status](#project-status-complete-)
+### Frontend (JavaScript/TypeScript)
+- **React 19** - UI library
+- **Chakra UI v3** - Component styling
+- **Recharts** - Charts
+- **TanStack Table** - Sortable tables
+- **Vitest** - Testing
 
 ---
 
-## High-Level Architecture
+## Project Structure
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         CLIENT BROWSER                               │
-│  ┌─────────────────────────────────────────────────────────────┐    │
-│  │              React + TypeScript Frontend                      │    │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │    │
-│  │  │  Bar Chart   │  │  Data Table  │  │  URL State Mgmt  │   │    │
-│  │  │  (Recharts)  │  │  (Custom)    │  │  (React Router)  │   │    │
-│  │  └──────────────┘  └──────────────┘  └──────────────────┘   │    │
-│  └─────────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ HTTP GET /usage
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      PYTHON BACKEND (FastAPI)                        │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────┐   │
-│  │  /usage API  │  │ Credit Calc  │  │  External API Client     │   │
-│  │  Endpoint    │──│ Service      │──│  (with caching)          │   │
-│  └──────────────┘  └──────────────┘  └──────────────────────────┘   │
-│                                                │                     │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │                    PostgreSQL (Optional)                      │   │
-│  │              For caching & audit logging                      │   │
-│  └──────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ HTTP GET
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                    EXTERNAL APIs (Orbital Witness)                   │
-│  ┌────────────────────────┐    ┌─────────────────────────────────┐  │
-│  │ /messages/current-period│    │ /reports/:id                    │  │
-│  │ (All messages)          │    │ (Report details)                │  │
-│  └────────────────────────┘    └─────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────┘
+orbital-ai-assignment/
+├── backend/
+│   ├── main.py           # API server
+│   ├── requirements.txt  # Python dependencies
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx       # Main app
+│   │   ├── components/
+│   │   │   ├── UsageOverview/  # Stats & chart
+│   │   │   └── ActivityLog/    # Data table
+│   │   └── hooks/
+│   │       └── useUsage.tsx    # Data fetching
+│   ├── package.json
+│   └── Dockerfile
+└── docker-compose.yml
 ```
 
 ---
 
-## Backend Design
+## How It Works
 
-### Framework Choice: FastAPI
+### Backend
 
-**Why FastAPI over Flask/Django:**
+1. Fetches messages from external API
+2. Calculates credits for each message
+3. Returns data as JSON
 
-- Async support out of the box (critical for concurrent external API calls)
-- Automatic OpenAPI/Swagger documentation
-- Pydantic for request/response validation (ensures strict contract)
-- Type hints = better IDE support and fewer bugs
-- Lightweight, perfect for this scope
-
-### Project Structure
-
+**API Endpoint:**
 ```
-backend/
-├── app/
-│   ├── __init__.py
-│   ├── main.py                 # FastAPI app entry point
-│   ├── config.py               # Settings & environment variables
-│   ├── api/
-│   │   ├── __init__.py
-│   │   └── routes/
-│   │       ├── __init__.py
-│   │       └── usage.py        # GET /usage endpoint
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── message_service.py  # Fetch & process messages
-│   │   ├── report_service.py   # Fetch report details
-│   │   └── credit_calculator.py # Credit calculation logic
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── schemas.py          # Pydantic models for API contract
-│   ├── clients/
-│   │   ├── __init__.py
-│   │   └── orbital_api.py      # HTTP client for external APIs
-│   └── utils/
-│       ├── __init__.py
-│       └── token_estimator.py  # Token estimation logic
-├── tests/
-│   ├── __init__.py
-│   ├── test_credit_calculator.py
-│   ├── test_usage_endpoint.py
-│   └── conftest.py             # Pytest fixtures
-├── requirements.txt
-├── Dockerfile
-└── README.md
+GET /usage
 ```
 
-### Key Design Decisions
-
-#### 1. Pydantic Models for Strict Contract
-
-```python
-from pydantic import BaseModel, Field
-from typing import Optional
-
-class UsageItem(BaseModel):
-    message_id: int
-    timestamp: str
-    report_name: Optional[str] = None
-    credits_used: float = Field(..., description="Always rounded to 2 decimals at calculation time")
-
-class UsageResponse(BaseModel):
-    usage: list[UsageItem]
-
-# CRITICAL: Use response_model_exclude_none=True at the route level
-# to ensure report_name is OMITTED (not null) when None
-@app.get("/usage", response_model=UsageResponse, response_model_exclude_none=True)
-async def get_usage():
-    ...
-
-# Alternative: Manual serialization
-# return JSONResponse(content=response.model_dump(exclude_none=True))
-```
-
-**Why this matters:** The API contract is strict — multiple teams depend on it. Returning `"report_name": null` instead of omitting the field entirely would break consumers expecting the field to be absent.
-
-#### 2. Async External API Calls with httpx
-
-```python
-import httpx
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
-
-# Lifespan handler for connection reuse (avoids creating client per request)
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Create a single client that will be reused across all requests
-    app.state.http_client = httpx.AsyncClient(timeout=30.0)
-    app.state.report_cache = {}  # In-memory cache for reports
-    yield
-    # Cleanup on shutdown
-    await app.state.http_client.aclose()
-
-app = FastAPI(lifespan=lifespan)
-
-
-class OrbitalAPIClient:
-    BASE_URL = "https://owpublic.blob.core.windows.net/tech-task"
-
-    def __init__(self, client: httpx.AsyncClient, cache: dict):
-        self._client = client
-        self._report_cache = cache
-
-    async def get_messages(self) -> list[dict]:
-        response = await self._client.get(f"{self.BASE_URL}/messages/current-period")
-        response.raise_for_status()
-        return response.json()["messages"]
-
-    async def get_report(self, report_id: int) -> dict:
-        # Check cache first (reports are semi-static)
-        if report_id in self._report_cache:
-            return self._report_cache[report_id]
-
-        response = await self._client.get(f"{self.BASE_URL}/reports/{report_id}")
-        response.raise_for_status()
-        report = response.json()
-
-        # Cache for future requests
-        self._report_cache[report_id] = report
-        return report
-
-    async def get_reports_batch(self, report_ids: list[int]) -> dict[int, dict]:
-        """Fetch multiple reports concurrently with deduplication."""
-        import asyncio
-
-        # Deduplicate IDs
-        unique_ids = list(set(report_ids))
-
-        # Filter out already-cached reports
-        to_fetch = [rid for rid in unique_ids if rid not in self._report_cache]
-
-        # Fetch uncached reports concurrently
-        if to_fetch:
-            tasks = [self.get_report(rid) for rid in to_fetch]
-            await asyncio.gather(*tasks)
-
-        # Return all requested reports from cache
-        return {rid: self._report_cache[rid] for rid in unique_ids if rid in self._report_cache}
-```
-
-**Why lifespan management matters:** Creating a new `httpx.AsyncClient()` per request adds connection overhead. For 110 messages potentially needing 30+ report fetches, reusing a single client with connection pooling is significantly more efficient.
-
-#### 3. Credit Calculator Service
-
-```python
-from decimal import Decimal, ROUND_HALF_UP
-
-BASE_MODEL_RATE = 40
-MINIMUM_CREDITS = Decimal("1.00")
-
-def calculate_message_credits(text: str) -> float:
-    """
-    Calculate credits for a text-based message (no report).
-
-    Uses character-based token estimation as per spec.
-    Note: The assignment mentions a "word" definition but explicitly
-    specifies character-based calculation: 1 token ≈ 4 characters.
-    """
-    char_count = len(text)
-    estimated_tokens = char_count / 4
-    credits = Decimal(str((estimated_tokens / 100) * BASE_MODEL_RATE))
-
-    # Round to 2 decimal places
-    credits = credits.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-
-    # Apply minimum AFTER rounding
-    return float(max(credits, MINIMUM_CREDITS))
-
-
-def get_report_credits(credit_cost: int) -> float:
-    """
-    Get credits for a report-based message.
-
-    Report costs are authoritative from the external API.
-    - No minimum applies (if a report costs 0.50, that's valid)
-    - Format to 2 decimal places for consistency
-    """
-    return float(Decimal(str(credit_cost)).quantize(Decimal("0.01")))
-
-
-def get_credits_for_message(message: dict, report: dict | None) -> float:
-    """
-    Unified credit calculation for any message type.
-    """
-    if report:
-        return get_report_credits(report["credit_cost"])
-    else:
-        return calculate_message_credits(message["text"])
-```
-
-**Key decisions:**
-
-- Rounding happens at calculation time, not serialization (more reliable)
-- Minimum credit (1.00) only applies to text-based messages, not reports
-- Using `Decimal` for intermediate calculations avoids floating-point precision issues
-
-**Note on "word" definition:** The assignment defines a "word" as a continual sequence of letters plus `'` and `-`, but then explicitly specifies **character-based** token estimation (1 token ≈ 4 characters). This appears to be legacy text from an earlier version of the spec. We follow the explicit character-based formula as it's the actual calculation requirement. The README should mention this observation to demonstrate awareness of the discrepancy.
-
-### Trade-off: In-Memory Cache vs Database Cache
-
-| Approach                       | Pros                            | Cons                                         |
-| ------------------------------ | ------------------------------- | -------------------------------------------- |
-| **In-Memory (Chosen for MVP)** | Simple, fast, no extra infra    | Lost on restart, not shared across instances |
-| **Redis**                      | Shared cache, survives restarts | Extra infrastructure, overkill for this task |
-| **PostgreSQL**                 | Audit trail, persistent         | Slower, more complex                         |
-
-**Decision:** In-memory cache for this task. Reports are semi-static (don't change often), and the dataset is small.
-
----
-
-## Frontend Design
-
-### Framework & Libraries
-
-| Purpose           | Library                      | Rationale                                   |
-| ----------------- | ---------------------------- | ------------------------------------------- |
-| Framework         | React 19 + TypeScript        | Latest stable version                       |
-| Build Tool        | Vite 7 (rolldown-vite)       | Fast dev server, modern defaults            |
-| Routing/URL State | React Router v7              | Industry standard, search params support    |
-| Data Fetching     | TanStack Query v5            | Caching, loading states, error handling     |
-| Table             | TanStack React Table v8      | Powerful headless table with sorting        |
-| Charts            | Recharts v3                  | React-native, declarative, good docs        |
-| Styling           | Chakra UI v3                 | Modern component library with design system |
-| Icons             | React Icons                  | Feather icons (FiCreditCard, etc.)          |
-| Package Manager   | Bun                          | Fast JavaScript runtime and package manager |
-| Testing           | Vitest + React Testing Library | Fast, Vite-native testing framework      |
-
-### Project Structure
-
-```
-frontend/
-├── src/
-│   ├── main.tsx               # App entry point with providers
-│   ├── App.tsx                # Main app component with layout
-│   ├── App.css                # Global styles
-│   ├── index.css              # Root CSS
-│   ├── components/
-│   │   ├── UsageOverview/
-│   │   │   ├── index.tsx      # Overview section with stats & chart
-│   │   │   └── index.test.tsx # Unit tests (8 tests)
-│   │   └── ActivityLog/
-│   │       ├── index.tsx      # Data table with multi-column sorting
-│   │       └── index.test.tsx # Unit tests (9 tests)
-│   ├── hooks/
-│   │   └── useUsage.tsx       # TanStack Query hook for API data
-│   ├── test/
-│   │   └── setup.tsx          # Test utilities with providers
-│   └── assets/
-├── vitest.config.ts           # Test configuration
-├── vite.config.ts             # Build configuration
-├── package.json
-├── tsconfig.json
-└── Dockerfile
-```
-
-### Component Architecture
-
-#### UsageOverview Component
-
-The `UsageOverview` component displays:
-- **Summary Stats Cards**: Total Credits, Messages Processed, Reports Generated
-- **Daily Usage Trends Chart**: Bar chart showing credit consumption over time
-
-Key features:
-- `StatCard` helper component with icon, value, and optional subtext
-- `aggregateUsageByDate()` utility for chart data transformation
-- Custom tooltip with formatted credit values (2 decimal places)
-- Responsive grid layout for stat cards
-
-```tsx
-// Summary calculations
-const totalCredits = usage.usage.reduce((sum, item) => sum + item.credits_used, 0);
-const totalMessages = usage.usage.length;
-const uniqueReports = new Set(usage.usage.map(item => item.report_name).filter(Boolean)).size;
-```
-
-#### ActivityLog Component
-
-The `ActivityLog` component displays a sortable data table with:
-- **MESSAGE ID**: Badge-styled identifier
-- **TIMESTAMP**: Formatted as `DD-MM-YYYY HH:mm`
-- **REPORT NAME**: Sortable, displays "N/A" if missing
-- **CREDITS USED**: Sortable, formatted with 2 decimal places
-
-Key features:
-- **TanStack React Table**: Headless table library for full control
-- **Multi-column sorting**: Click columns to add to sort order
-- **URL state persistence**: Sort state synced to URL search params
-- **Chakra UI v3 Table**: Uses `Table.Root`, `Table.Header`, `Table.Body`, etc.
-
-```tsx
-// URL-synced sorting with TanStack Table
-const table = useReactTable({
-  data: usage.usage,
-  columns,
-  state: { sorting },
-  onSortingChange: handleSortingChange,
-  getCoreRowModel: getCoreRowModel(),
-  getSortedRowModel: getSortedRowModel(),
-  enableMultiSort: true,
-  isMultiSortEvent: () => true,
-});
-```
-
-### Data Fetching Hook
-
-The `useUsage` hook uses TanStack Query for data fetching:
-
-```tsx
-// hooks/useUsage.tsx
-export function useUsage() {
-  return useQuery<IUsageResponse, Error>({
-    queryKey: ["usage"],
-    queryFn: fetchUsage,
-  });
-}
-
-// Configurable backend URL via environment variable
-function getBackendUrl(): string {
-  const envUrl = import.meta.env.VITE_BACKEND_URL;
-  if (!envUrl) return "http://localhost:8000";
-  return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl;
-}
-```
-
-### Testing
-
-The frontend uses **Vitest** with **React Testing Library** for component testing.
-
-**Run tests:**
-```bash
-bun run test          # Watch mode
-bun run test --run    # Single run
-bun run test:coverage # With coverage report
-```
-
-**Test coverage:**
-- `UsageOverview`: 8 tests (headings, stat cards, chart rendering)
-- `ActivityLog`: 9 tests (table headers, data rows, sorting, empty state)
-
-**Test setup (`src/test/setup.tsx`):**
-- Custom `render()` function with `ChakraProvider` and `MemoryRouter`
-- Jest-DOM matchers for extended assertions
-- Mocked Recharts and Chakra Table components for jsdom compatibility
-
-
-### Key Implementation Details
-
-#### 1. Type Definitions
-
-```typescript
-// types/usage.ts
-export interface UsageItem {
-  message_id: number;
-  timestamp: string;
-  report_name?: string; // Optional - may be omitted
-  credits_used: number;
-}
-
-export interface UsageResponse {
-  usage: UsageItem[];
-}
-
-export type SortDirection = "asc" | "desc" | null;
-
-export interface SortState {
-  report_name: SortDirection;
-  credits_used: SortDirection;
-}
-```
-
-#### 2. URL-Synced Sort State Hook (with Precedence Tracking)
-
-The key insight here is that we need to track not just _what_ is sorted and _which direction_, but also the _order_ in which sorts were applied. This is essential for both correct sorting behavior and URL shareability.
-
-```typescript
-// hooks/useUrlSortState.ts
-import { useSearchParams } from "react-router-dom";
-import { useCallback, useMemo } from "react";
-
-type SortColumn = "report_name" | "credits_used";
-type SortDirection = "asc" | "desc";
-
-export interface SortEntry {
-  column: SortColumn;
-  direction: SortDirection;
-}
-
-/**
- * URL format: ?sort=report_name:asc,credits_used:desc
- *
- * This preserves BOTH direction AND precedence (order matters!)
- * The first entry is the primary sort, second is secondary tiebreaker.
- */
-export function useUrlSortState() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // Parse the URL param into an ordered array of sort entries
-  const sortOrder: SortEntry[] = useMemo(() => {
-    const sortParam = searchParams.get("sort");
-    if (!sortParam) return [];
-
-    return sortParam
-      .split(",")
-      .map((entry) => {
-        const [column, direction] = entry.split(":");
-        if (isValidColumn(column) && isValidDirection(direction)) {
-          return { column, direction } as SortEntry;
-        }
-        return null;
-      })
-      .filter((entry): entry is SortEntry => entry !== null);
-  }, [searchParams]);
-
-  // Get the current direction for a specific column (for UI indicators)
-  const getDirection = useCallback(
-    (column: SortColumn): SortDirection | null => {
-      const entry = sortOrder.find((e) => e.column === column);
-      return entry?.direction ?? null;
-    },
-    [sortOrder],
-  );
-
-  // Toggle sort: null → asc → desc → null (removes from sort order)
-  const toggleSort = useCallback(
-    (column: SortColumn) => {
-      setSearchParams((prev) => {
-        const params = new URLSearchParams(prev);
-        const currentEntry = sortOrder.find((e) => e.column === column);
-
-        let newSortOrder: SortEntry[];
-
-        if (!currentEntry) {
-          // Not sorted → add as ascending (becomes lowest priority)
-          newSortOrder = [...sortOrder, { column, direction: "asc" }];
-        } else if (currentEntry.direction === "asc") {
-          // Ascending → change to descending (maintain position in order)
-          newSortOrder = sortOrder.map((e) =>
-            e.column === column ? { ...e, direction: "desc" as const } : e,
-          );
-        } else {
-          // Descending → remove from sort order entirely
-          newSortOrder = sortOrder.filter((e) => e.column !== column);
-        }
-
-        // Update URL param
-        if (newSortOrder.length === 0) {
-          params.delete("sort");
-        } else {
-          params.set(
-            "sort",
-            newSortOrder.map((e) => `${e.column}:${e.direction}`).join(","),
-          );
-        }
-
-        return params;
-      });
-    },
-    [sortOrder, setSearchParams],
-  );
-
-  return { sortOrder, getDirection, toggleSort };
-}
-
-function isValidColumn(value: string): value is SortColumn {
-  return value === "report_name" || value === "credits_used";
-}
-
-function isValidDirection(value: string): value is SortDirection {
-  return value === "asc" || value === "desc";
-}
-```
-
-**Why this design:**
-
-- **Ordered array, not object:** Preserves which sort was applied first (primary) vs second (tiebreaker)
-- **URL is single source of truth:** Sharing `?sort=credits_used:desc,report_name:asc` gives identical results
-- **Tri-state toggle:** null → asc → desc → null, with removal from the sort order on third click
-- **New sorts added at end:** When you click a new column, it becomes the _secondary_ sort, not primary. This is intentional — if you want it primary, click the other column to remove its sort first.
-
-````
-
-#### 3. Multi-Column Sorting Logic (Precedence-Aware)
-
-```typescript
-// utils/sortUtils.ts
-import { UsageItem } from '../types/usage';
-import { SortEntry } from '../hooks/useUrlSortState';
-
-/**
- * Sort usage data respecting the ORDER of sort entries.
- * First entry in sortOrder is the primary sort, subsequent entries are tiebreakers.
- *
- * @param data - The usage items to sort
- * @param sortOrder - Ordered array of sort entries (first = primary)
- * @param originalIndices - Map of message_id to original position (for stable sort)
- */
-export function sortUsageData(
-  data: UsageItem[],
-  sortOrder: SortEntry[],
-  originalIndices: Map<number, number>
-): UsageItem[] {
-  // If no sorts applied, return original order
-  if (sortOrder.length === 0) {
-    return [...data].sort((a, b) =>
-      (originalIndices.get(a.message_id) ?? 0) - (originalIndices.get(b.message_id) ?? 0)
-    );
-  }
-
-  return [...data].sort((a, b) => {
-    // Apply each sort in order (first is primary, rest are tiebreakers)
-    for (const { column, direction } of sortOrder) {
-      let comparison = 0;
-      let forceEnd = false;
-
-      if (column === 'report_name') {
-        // Empty/undefined report names sort to the end
-        const aName = a.report_name ?? '';
-        const bName = b.report_name ?? '';
-        const aEmpty = aName === '';
-        const bEmpty = bName === '';
-
-        if (aEmpty && bEmpty) {
-          comparison = 0;
-        } else if (aEmpty) {
-          comparison = 1;
-          forceEnd = true;
-        } else if (bEmpty) {
-          comparison = -1;
-          forceEnd = true;
-        } else {
-          comparison = aName.localeCompare(bName);
-        }
-      } else if (column === 'credits_used') {
-        comparison = a.credits_used - b.credits_used;
-      }
-
-      // If not equal, apply direction and return
-      if (comparison !== 0) {
-        if (forceEnd) {
-          return comparison;
-        }
-        return direction === 'asc' ? comparison : -comparison;
-      }
-      // If equal, continue to next sort entry (tiebreaker)
+**Response:**
+```json
+{
+  "usage": [
+    {
+      "message_id": 1,
+      "timestamp": "2024-04-29T10:00:00Z",
+      "report_name": "Report Name",
+      "credits_used": 25.50
     }
-
-    // All sort criteria are equal: fall back to original order (stable sort)
-    return (originalIndices.get(a.message_id) ?? 0) - (originalIndices.get(b.message_id) ?? 0);
-  });
-}
-````
-
-**Key improvements from original:**
-
-- Uses the _ordered_ `sortOrder` array, not a hardcoded column precedence
-- Falls back to original API order when sorts are tied (stable sorting)
-- Properly handles empty report names (sort to end, not beginning)
-
-#### 4. Chart Data Transformation (UTC-Consistent)
-
-```typescript
-// utils/chartDataTransform.ts
-import { UsageItem } from "../types/usage";
-
-interface ChartDataPoint {
-  date: string; // Display format: "29-04"
-  fullDate: string; // For tooltips: "29-04-2024"
-  credits: number;
-}
-
-/**
- * Transform usage data into chart-friendly format.
- *
- * IMPORTANT: Uses UTC dates for consistency with table formatting.
- * Both table and chart now bucket by the same date, avoiding timezone
- * mismatches where a message could appear on different dates in each view.
- */
-export function transformToChartData(usage: UsageItem[]): ChartDataPoint[] {
-  if (usage.length === 0) return [];
-
-  // Group credits by UTC date
-  const creditsByDate = new Map<string, number>();
-
-  usage.forEach((item) => {
-    // Extract UTC date (YYYY-MM-DD) from ISO timestamp
-    const utcDate = item.timestamp.split("T")[0];
-    creditsByDate.set(
-      utcDate,
-      (creditsByDate.get(utcDate) || 0) + item.credits_used,
-    );
-  });
-
-  // Find date range
-  const dates = Array.from(creditsByDate.keys()).sort();
-  const startDate = new Date(dates[0] + "T00:00:00Z"); // Parse as UTC
-  const endDate = new Date(dates[dates.length - 1] + "T00:00:00Z");
-
-  // Generate all dates in range (including days with zero usage)
-  const result: ChartDataPoint[] = [];
-  const current = new Date(startDate);
-
-  while (current <= endDate) {
-    const dateStr = current.toISOString().split("T")[0]; // YYYY-MM-DD
-    const [year, month, day] = dateStr.split("-");
-
-    result.push({
-      date: `${day}-${month}`, // X-axis label: DD-MM
-      fullDate: `${day}-${month}-${year}`, // Tooltip: DD-MM-YYYY
-      credits: Math.round((creditsByDate.get(dateStr) || 0) * 100) / 100, // Round for display
-    });
-
-    current.setUTCDate(current.getUTCDate() + 1); // Use UTC to avoid DST issues
-  }
-
-  return result;
+  ]
 }
 ```
 
-**Timezone Decision:**
+### Frontend
 
-We chose **UTC everywhere** for consistency:
+1. Fetches data from backend
+2. Shows overview cards (total credits, messages, reports)
+3. Displays bar chart for daily usage
+4. Shows sortable table with all records
 
-| Component       | Behavior                               |
-| --------------- | -------------------------------------- |
-| Table timestamp | Format ISO as UTC: `formatTimestamp()` |
-| Chart buckets   | Group by UTC date from ISO string      |
-| URL/sharing     | Inherently timezone-agnostic           |
+---
 
-**Trade-off:** Users see UTC times, not local times. For a B2B legal product used across timezones, UTC is actually preferable — it's unambiguous. If local time were required, we'd need to document which timezone and ensure both views use the same conversion.
+## Running Tests
 
-```typescript
-// utils/dateFormatters.ts
+### Backend
+```bash
+cd backend
+pytest
+```
 
-/**
- * Format ISO timestamp to DD-MM-YYYY HH:mm (UTC)
- *
- * Using UTC for consistency with chart date bucketing.
- * Alternative: Use Intl.DateTimeFormat with explicit timezone.
- */
-export function formatTimestamp(iso: string): string {
-  const date = new Date(iso);
-
-  const day = date.getUTCDate().toString().padStart(2, "0");
-  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-  const year = date.getUTCFullYear();
-  const hours = date.getUTCHours().toString().padStart(2, "0");
-  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-}
+### Frontend
+```bash
+cd frontend
+bun run test
 ```
 
 ---
 
-## Trade-offs & Decisions
+## Available Commands
 
-### Backend Trade-offs
+### Frontend
 
-| Decision                       | Alternative       | Why This Choice                                             |
-| ------------------------------ | ----------------- | ----------------------------------------------------------- |
-| **FastAPI**                    | Flask, Django     | Async support crucial for concurrent report fetching        |
-| **httpx**                      | aiohttp, requests | Modern, async-native, good API                              |
-| **In-memory cache**            | Redis, PostgreSQL | Simple, sufficient for demo, quick to implement             |
-| **Decimal for credits**        | float             | Precision matters for billing, avoids floating point errors |
-| **Concurrent report fetching** | Sequential        | Major performance win (asyncio.gather for N reports)        |
+| Command | Description |
+| ------- | ----------- |
+| `bun run dev` | Start development server |
+| `bun run build` | Build for production |
+| `bun run test` | Run tests |
+| `bun run lint` | Check code quality |
 
-### Frontend Trade-offs
+### Backend
 
-| Decision              | Alternative                    | Why This Choice                                             |
-| --------------------- | ------------------------------ | ----------------------------------------------------------- |
-| **Vite**              | Create React App, Next.js      | Fast, modern, no SSR needed                                 |
-| **TanStack Query**    | SWR, plain fetch               | Built-in caching, loading states, refetch logic             |
-| **TanStack Table**    | AG Grid, custom implementation | Headless, full control, built-in multi-sort support         |
-| **Recharts**          | Chart.js, D3, Nivo             | React-native, simple API, good for bar charts               |
-| **Chakra UI v3**      | Tailwind CSS, styled-components| Modern design system, accessibility built-in                |
-| **Bun**               | npm, pnpm, yarn                | Fastest JavaScript runtime and package manager              |
-| **Vitest**            | Jest, Mocha                    | Vite-native, faster, same API as Jest                       |
-| **URL search params** | Context, Redux                 | Shareable URLs requirement, simpler state management        |
-
-### Critical Implementation Decisions
-
-#### 1. Tri-State Sorting (null → asc → desc → null)
-
-The requirement states: "First click sorts ascending, second descending, third returns to original."
-
-**Challenge:** Preserving "original order" after sorting.
-
-**Solution:** Store original indices on data fetch, use them when all sorts are cleared.
-
-```typescript
-const [originalIndices, setOriginalIndices] = useState<Map<number, number>>(
-  new Map(),
-);
-
-useEffect(() => {
-  if (data) {
-    const indices = new Map<number, number>(
-      data.usage.map((item, idx) => [item.message_id, idx]),
-    );
-    setOriginalIndices(indices);
-  }
-}, [data]);
-```
-
-#### 2. Multi-Column Simultaneous Sorting
-
-**Challenge:** "It should be possible to have sorts applied to both columns at the same time."
-
-**Interpretation Options:**
-
-- A) Sort by column A, then B as tiebreaker (hierarchical)
-- B) Apply sorts independently (unclear behavior)
-
-**Decision:** Option A - hierarchical sorting where the **order of clicks determines precedence**.
-
-**Implementation:** Track sort order with an ordered array, not an object:
-
-```typescript
-// URL: ?sort=credits_used:desc,report_name:asc
-// Means: Primary sort by credits (desc), then by report_name (asc) for ties
-
-const sortOrder: SortEntry[] = [
-  { column: "credits_used", direction: "desc" }, // Primary (clicked first)
-  { column: "report_name", direction: "asc" }, // Secondary (clicked second)
-];
-```
-
-**Behavior:**
-
-- First click on a column → adds it to the sort order (ascending)
-- Second click on same column → changes to descending (keeps position)
-- Third click on same column → removes it from sort order entirely
-
-This ensures the URL `?sort=credits_used:desc,report_name:asc` can be shared and will produce identical results for any user.
-
-#### 3. Empty Report Name vs Omitted
-
-**Requirement:** "If not a valid report, Report Name column should be empty"
-
-**API Contract:** `report_name?` - optional field, omitted when not present.
-
-**Frontend Handling:**
-
-```typescript
-<td>{item.report_name ?? ''}</td>  // Displays empty string if undefined
-```
-
-#### 4. Timestamp Formatting
-
-**Requirement:** `DD-MM-YYYY HH:mm` format
-
-**Input:** ISO 8601 `2024-04-29T02:08:29.375Z`
-
-```typescript
-function formatTimestamp(iso: string): string {
-  const date = new Date(iso);
-  const day = date.getUTCDate().toString().padStart(2, "0");
-  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-  const year = date.getUTCFullYear();
-  const hours = date.getUTCHours().toString().padStart(2, "0");
-  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-  return `${day}-${month}-${year} ${hours}:${minutes}`;
-}
-```
-
-**Consideration:** Timezone handling - display in user's local time or UTC? Task shows times that suggest UTC. **Decision:** Use UTC for consistency with chart bucketing.
+| Command | Description |
+| ------- | ----------- |
+| `python3 main.py` | Start server |
+| `pytest` | Run tests |
 
 ---
 
+## Table Sorting
 
-## Deployment
+The activity log table supports sorting:
 
-### Current Docker Setup (Simplified)
+- **Click once** → Sort ascending (A-Z, low to high)
+- **Click again** → Sort descending (Z-A, high to low)
+- **Click third time** → Back to original order
 
-The project uses a simple Docker setup with no nginx:
+You can sort by multiple columns at once. The URL updates automatically so you can share the sorted view.
 
-**Backend Dockerfile:**
-- Base image: `python:3.11-slim`
-- Package manager: `uv` (fast dependency management)
-- Runs: `uvicorn main:app --host 0.0.0.0 --port 8000`
-- Port: 8000
+---
 
-**Frontend Dockerfile:**
-- Base image: `oven/bun:1.1.45-slim`
-- Package manager: `bun` (fast JavaScript runtime)
-- Build: `bun run build`
-- Runs: `bun run preview` (Vite preview server)
-- Port: 5173
-- **No nginx** - Vite preview handles both static files and API proxying
+## Key Features
 
-**docker-compose.yml:**
-```yaml
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    networks:
-      - app
+✅ **Overview Cards** - Quick stats at a glance  
+✅ **Bar Chart** - Visual daily usage trends  
+✅ **Sortable Table** - Click columns to sort  
+✅ **Multi-Column Sort** - Sort by multiple columns  
+✅ **URL State** - Sorting saved in URL for sharing  
+✅ **Responsive Design** - Works on all screen sizes  
+✅ **Unit Tests** - 17 tests for frontend components  
 
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    environment:
-      - BACKEND_URL=http://backend:8000
-    depends_on:
-      - backend
-    networks:
-      - app
+---
 
-networks:
-  app:
+## Docker Setup
+
+The app uses Docker for easy deployment:
+
+- **Frontend**: Runs on port 5173 (Vite dev server)
+- **Backend**: Runs on port 8000 (FastAPI)
+
+Both services are defined in `docker-compose.yml`.
+
+---
+
+## Environment Variables
+
+### Frontend
+- `VITE_BACKEND_URL` - Backend API URL (default: `http://localhost:8000`)
+
+---
+
+## Troubleshooting
+
+### Port already in use?
+```bash
+# Kill process on port 5173
+lsof -ti :5173 | xargs kill -9
+
+# Kill process on port 8000
+lsof -ti :8000 | xargs kill -9
 ```
+
+### Docker not working?
+```bash
+# Rebuild containers
+docker-compose down
+docker-compose up --build
+```
+
+---
+
+## Credits
+
+Built for the Orbital Witness technical assignment.
