@@ -1,19 +1,17 @@
-/**
- * Main App Component.
- * Sets up routing and the dashboard.
- */
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Dashboard } from "./components/Dashboard";
-import "./index.css";
+import "./App.css";
+import { Box } from "@chakra-ui/react";
 
 function App() {
+
 	return (
-		<BrowserRouter>
-			<Routes>
-				<Route path="/" element={<Dashboard />} />
-			</Routes>
-		</BrowserRouter>
+		<>
+      <Box border="1px solid white" p="10px" borderRadius="10px">
+        <h1>Welcome to Orbital AI</h1>
+      </Box>
+      <Box border="1px solid white" p="10px" borderRadius="10px">
+        <h1>This is a placeholder for the main page</h1>
+      </Box>
+		</>
 	);
 }
 
