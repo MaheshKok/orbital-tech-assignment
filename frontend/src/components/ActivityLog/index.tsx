@@ -265,70 +265,69 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 				overflow="hidden"
 				p={8}
 			>
-
-			<Box overflowX="auto">
-				<Table variant="simple" size="md">
-					<Thead bg="gray.50">
-						{table.getHeaderGroups().map((headerGroup) => (
-							<Tr key={headerGroup.id}>
-								{headerGroup.headers.map((header) => (
-									<Th
-										key={header.id}
-										borderBottomWidth="1px"
-										borderColor="gray.100"
-										color="gray.400"
-										fontSize="xs"
-										fontWeight="bold"
-										letterSpacing="wider"
-										py={4}
-									>
-										{header.isPlaceholder
-											? null
-											: flexRender(
-													header.column.columnDef
-														.header,
-													header.getContext()
-												)}
-									</Th>
-								))}
-							</Tr>
-						))}
-					</Thead>
-					<Tbody>
-						{table.getRowModel().rows.length === 0 ? (
-							<Tr>
-								<Td
-									colSpan={columns.length}
-									textAlign="center"
-									color="gray.500"
-									py={10}
-								>
-									No usage data available
-								</Td>
-							</Tr>
-						) : (
-							table.getRowModel().rows.map((row) => (
-								<Tr key={row.id} _hover={{ bg: "gray.50" }}>
-									{row.getVisibleCells().map((cell) => (
-										<Td
-											key={cell.id}
+				<Box overflowX="auto">
+					<Table variant="simple" size="md">
+						<Thead bg="gray.50">
+							{table.getHeaderGroups().map((headerGroup) => (
+								<Tr key={headerGroup.id}>
+									{headerGroup.headers.map((header) => (
+										<Th
+											key={header.id}
 											borderBottomWidth="1px"
-											borderColor="gray.50"
+											borderColor="gray.100"
+											color="gray.400"
+											fontSize="xs"
+											fontWeight="bold"
+											letterSpacing="wider"
 											py={4}
 										>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext()
-											)}
-										</Td>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef
+															.header,
+														header.getContext()
+													)}
+										</Th>
 									))}
 								</Tr>
-							))
-						)}
-					</Tbody>
-				</Table>
+							))}
+						</Thead>
+						<Tbody>
+							{table.getRowModel().rows.length === 0 ? (
+								<Tr>
+									<Td
+										colSpan={columns.length}
+										textAlign="center"
+										color="gray.500"
+										py={10}
+									>
+										No usage data available
+									</Td>
+								</Tr>
+							) : (
+								table.getRowModel().rows.map((row) => (
+									<Tr key={row.id} _hover={{ bg: "gray.50" }}>
+										{row.getVisibleCells().map((cell) => (
+											<Td
+												key={cell.id}
+												borderBottomWidth="1px"
+												borderColor="gray.50"
+												py={4}
+											>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext()
+												)}
+											</Td>
+										))}
+									</Tr>
+								))
+							)}
+						</Tbody>
+					</Table>
+				</Box>
 			</Box>
-		</Box>
 		</Box>
 	);
 }

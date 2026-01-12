@@ -58,7 +58,12 @@ function StatCard({
 		>
 			<Flex justify="space-between" align="start">
 				<Box>
-					<Text fontSize="sm" color="gray.500" fontWeight="medium" mb={1}>
+					<Text
+						fontSize="sm"
+						color="gray.500"
+						fontWeight="medium"
+						mb={1}
+					>
 						{title}
 					</Text>
 					<Heading size="2xl" mb={1} mt={2} color="#111827">
@@ -283,7 +288,7 @@ export default function UsageOverview({ usage }: UsageOverviewProps) {
 													"number"
 														? payload[0].value.toFixed(
 																2
-														  )
+															)
 														: payload[0].value}{" "}
 													<Text
 														as="span"
