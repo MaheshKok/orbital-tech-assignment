@@ -238,10 +238,20 @@ export default function UsageAnalytics({ usage }: { usage: IUsageResponse }) {
 												border="1px solid"
 												borderColor="gray.100"
 											>
-												<Text fontSize="xs" color="gray.500" mb={1}>
-													{typeof label === "string" ? formatDate(label) : ""}
+												<Text
+													fontSize="xs"
+													color="gray.500"
+													mb={1}
+												>
+													{typeof label === "string"
+														? formatDate(label)
+														: ""}
 												</Text>
-												<Text fontWeight="bold" fontSize="lg" color="#111827">
+												<Text
+													fontWeight="bold"
+													fontSize="lg"
+													color="#111827"
+												>
 													{payload[0].value}{" "}
 													<Text
 														as="span"

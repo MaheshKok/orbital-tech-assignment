@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 interface IUsageItem {
 	message_id: number;
@@ -21,8 +20,8 @@ async function fetchUsage(): Promise<IUsageResponse> {
 // Fetch all users
 export function useUsage() {
 	// TanStack Query
-	return  useQuery({
+	return useQuery({
 		queryKey: ["usage"],
 		queryFn: fetchUsage,
-	});	
+	});
 }

@@ -83,7 +83,6 @@ function serializeSortingToParams(sorting: SortingState): string {
 	return sorting.map((s) => `${s.id}:${s.desc ? "desc" : "asc"}`).join(",");
 }
 
-
 export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 	const [searchParams, setSearchParams] = useSearchParams();
 
@@ -140,10 +139,15 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 				cell: (info) => {
 					const date = new Date(info.getValue<string>());
 					const day = date.getDate().toString().padStart(2, "0");
-					const month = (date.getMonth() + 1).toString().padStart(2, "0");
+					const month = (date.getMonth() + 1)
+						.toString()
+						.padStart(2, "0");
 					const year = date.getFullYear();
 					const hours = date.getHours().toString().padStart(2, "0");
-					const minutes = date.getMinutes().toString().padStart(2, "0");
+					const minutes = date
+						.getMinutes()
+						.toString()
+						.padStart(2, "0");
 
 					return (
 						<Text color="#111827" fontWeight="medium" fontSize="sm">
@@ -155,7 +159,8 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 			{
 				accessorKey: "report_name",
 				header: ({ column }) => {
-					const sortIndex = sorting.findIndex((s) => s.id === column.id) + 1;
+					const sortIndex =
+						sorting.findIndex((s) => s.id === column.id) + 1;
 					return (
 						<Flex
 							align="center"
@@ -163,7 +168,10 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 							onClick={column.getToggleSortingHandler()}
 						>
 							REPORT NAME
-							<SortIcon sortState={column.getIsSorted()} index={sortIndex} />
+							<SortIcon
+								sortState={column.getIsSorted()}
+								index={sortIndex}
+							/>
 						</Flex>
 					);
 				},
@@ -186,7 +194,8 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 			{
 				accessorKey: "credits_used",
 				header: ({ column }) => {
-					const sortIndex = sorting.findIndex((s) => s.id === column.id) + 1;
+					const sortIndex =
+						sorting.findIndex((s) => s.id === column.id) + 1;
 					return (
 						<Flex
 							align="center"
@@ -194,7 +203,10 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 							onClick={column.getToggleSortingHandler()}
 						>
 							CREDITS USED
-							<SortIcon sortState={column.getIsSorted()} index={sortIndex} />
+							<SortIcon
+								sortState={column.getIsSorted()}
+								index={sortIndex}
+							/>
 						</Flex>
 					);
 				},
@@ -202,7 +214,12 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 				cell: (info) => (
 					<Text color="#3730a3" fontWeight="bold" fontSize="sm">
 						{info.getValue<number>().toFixed(2)}{" "}
-						<Text as="span" fontWeight="normal" color="gray.500" fontSize="xs">
+						<Text
+							as="span"
+							fontWeight="normal"
+							color="gray.500"
+							fontSize="xs"
+						>
 							credits
 						</Text>
 					</Text>
@@ -258,7 +275,8 @@ export default function UsageTable({ usage }: { usage: IUsageResponse }) {
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef.header,
+													header.column.columnDef
+														.header,
 													header.getContext()
 												)}
 									</Th>

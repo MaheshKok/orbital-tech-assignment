@@ -5,9 +5,9 @@ import { useUsage } from "./hooks/useUsage";
 import UsageAnalytics from "./ components/usageAnalytics";
 
 function App() {
-const { data: usage, isLoading, isError, refetch } = useUsage();
+	const { data: usage, isLoading, isError, refetch } = useUsage();
 
-  if (isLoading) {
+	if (isLoading) {
 		return (
 			<Box textAlign="center" py={10}>
 				<Spinner size="xl" />
@@ -25,13 +25,13 @@ const { data: usage, isLoading, isError, refetch } = useUsage();
 				</Button>
 			</Box>
 		);
-  } 
-  
+	}
+
 	return (
-    <>
-      {usage && <UsageAnalytics usage={usage}/>}
-  {usage &&  <UsageTable usage={usage}/>}
-    </>
+		<>
+			{usage && <UsageAnalytics usage={usage} />}
+			{usage && <UsageTable usage={usage} />}
+		</>
 	);
 }
 
