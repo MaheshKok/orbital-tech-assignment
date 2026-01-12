@@ -152,10 +152,10 @@ export default function UsageOverview({ usage }: UsageOverviewProps) {
 	).size;
 
 	return (
-		<Box bg="white" p={8} borderRadius="3xl" boxShadow="xl" mb={8}>
+		<Box mb={8}>
 			{/* Header */}
 			<Box mb={8} textAlign="left">
-				<Heading size="lg" mb={2} color="#6366f1">
+				<Heading size="lg" mb={2} color="#4338ca">
 					Overview
 				</Heading>
 				<Text color="gray.500">
@@ -197,8 +197,9 @@ export default function UsageOverview({ usage }: UsageOverviewProps) {
 				p={6}
 				borderRadius="xl"
 				borderWidth="1px"
-				borderColor="gray.200"
+				borderColor="blue.100"
 				bg="white"
+				boxShadow="sm"
 			>
 				<Flex justify="space-between" align="center" mb={6}>
 					<Box>

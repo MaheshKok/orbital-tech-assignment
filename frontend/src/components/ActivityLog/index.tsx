@@ -254,16 +254,17 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 	});
 
 	return (
-		<Box
-			bg="white"
-			borderRadius="3xl"
-			boxShadow="xl"
-			overflow="hidden"
-			p={8}
-		>
+		<Box>
 			<Heading size="md" mb={6} color="#111827">
 				Detailed Activity Log
 			</Heading>
+			<Box
+				bg="white"
+				borderRadius="3xl"
+				boxShadow="xl"
+				overflow="hidden"
+				p={8}
+			>
 
 			<Box overflowX="auto">
 				<Table variant="simple" size="md">
@@ -327,6 +328,7 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 					</Tbody>
 				</Table>
 			</Box>
+		</Box>
 		</Box>
 	);
 }
