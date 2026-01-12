@@ -117,10 +117,7 @@ function aggregateUsageByDate(usage: IUsageResponse): DailyUsage[] {
 // ============================================================================
 
 export default function UsageOverview({ usage }: UsageOverviewProps) {
-	const dailyData = useMemo(
-		() => aggregateUsageByDate(usage),
-		[usage]
-	);
+	const dailyData = useMemo(() => aggregateUsageByDate(usage), [usage]);
 
 	const totalCredits = usage.usage.reduce(
 		(sum, item) => sum + item.credits_used,

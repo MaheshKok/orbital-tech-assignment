@@ -241,6 +241,7 @@ export default function ActivityLog({ usage }: ActivityLogProps) {
 		[sorting]
 	);
 
+	// eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table handles its own memoization
 	const table = useReactTable({
 		data: usage.usage,
 		columns,
